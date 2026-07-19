@@ -8,6 +8,8 @@ function toggleBoxes() {
 }
 
 MPT.getSettings().then(function (s) {
+  MPT.setLangValue(s.lang || MPT.detectLang());
+  $('langSel').value = s.lang || '';
   $('autoUpdate').checked = !!s.autoUpdate;
   $('autoTime').value = s.autoUpdateTime || '03:00';
   $('storage').value = s.storage;
@@ -33,6 +35,10 @@ MPT.storage.local.listProfiles().then(function (ps) {
 
 $('storage').onchange = toggleBoxes;
 $('fetch').onchange = toggleBoxes;
+$('langSel').onchange = function () {
+  MPT.setLangValue($('langSel').value);
+  MPT.patchSettings({ lang: $('langSel').value });
+};
 
 $('save').onclick = function () {
   var s = {

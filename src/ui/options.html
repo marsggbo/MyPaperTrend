@@ -33,6 +33,15 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
 <div class="wrap">
   <h1>⚙ MyPaperTrend Settings</h1>
 
+  <div class="bar" style="justify-content:flex-end;margin-top:-.6rem">
+    <label for="langSel" style="font-size:.82rem;color:var(--muted)">🌐 Language / 语言</label>
+    <select id="langSel" style="max-width:150px">
+      <option value="">Auto</option>
+      <option value="en">English</option>
+      <option value="zh">中文</option>
+    </select>
+  </div>
+
   <div class="card">
     <h2>Account &amp; cloud sync</h2>
     <div class="hint">Sign in with GitHub to sync your history to the cloud — it creates (or forks) a <code>mypapertrend-data</code> repo under your account and writes one file per scholar. No manual token needed.</div>
@@ -104,6 +113,7 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
   </div>
 </div>
 
+<script src="../core/i18n.js"></script>
 <script src="../core/config.js"></script>
 <script src="../core/schema.js"></script>
 <script src="../core/settings.js"></script>

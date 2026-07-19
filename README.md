@@ -14,9 +14,10 @@ it makes *no extra network request*, so there is nothing for Google's anti-bot t
 
 ## Features
 
-- 📊 **Trend overlay** on your Scholar profile: total-citations chart with a hover crosshair
-  showing **date · total citations · daily new**, plus a **click-to-expand per-paper** list
-  (each paper opens its own trend chart, one at a time).
+- 📊 **Trend overlay** on your Scholar profile: a compact, **collapsible** panel with the
+  total-citations chart (hover crosshair shows **date · total · daily new**), styled to match
+  Scholar. A **📈 icon under each paper** expands that paper's own history right in the native list.
+- 🌐 **English & 中文** — switch language from the panel (EN / 中) or Settings.
 - 🎯 **Pagination-proof total**: the overall number is read from Scholar's own metrics box
   (Citations / h-index / i10), so it's correct even when the paper list is paginated. Per-paper
   history updates for whatever papers are shown — click *Capture all pages* to include the rest.

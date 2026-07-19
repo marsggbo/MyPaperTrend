@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MyPaperTrend",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxRumOYXyj+iqj9x0dsn9hUfHiX03fZhI/hSjVKtL1yyIWQpF12KU4cKp+3f3pLWb2uHMJ8Phh30SBO2f1RchcawdDK3M5cSem9lIOYygD6NkpkCfzG1SFUD2Ps/oYDi7CjPlf7ITOxS7B4xi+L73do++K+1JrpQ4AlfH7RCw4aEJJAIRiz2kPQpcgHNUdpGaKxodMvDS+b8wVCkZokgbZiVIo6vyy2TKsmlV9gOtH4kGbHllfimR/XmcWAibJFqq/Ypy12p1IhONE/iZMA4YEggrkhJSm8UZmJakkTBJuyUVbmDOVZhLd5fevAjU2K4VHeH2HFS+TPxgDYC9i9AIWwIDAQAB",
   "description": "Track your Google Scholar citations over time and overlay the trend chart right on your Scholar profile. Zero-config, local-first.",
   "icons": {
@@ -40,12 +40,15 @@
       ],
       "js": [
         "src/vendor/chart.umd.min.js",
+        "src/core/i18n.js",
         "src/core/schema.js",
         "src/core/normalizer.js",
         "src/core/settings.js",
         "src/core/storage/local.js",
         "src/content/scholar_dom.js",
+        "src/content/chart_util.js",
         "src/content/overlay.js",
+        "src/content/inline.js",
         "src/content/content.js"
       ],
       "run_at": "document_idle"

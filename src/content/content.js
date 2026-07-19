@@ -9,15 +9,22 @@
   var scholarName = MPT.dom.getName();
   var AUTO = location.hash.indexOf('mpt-auto') >= 0;   // opened by the daily scheduler
 
+  var lastModel = null;
+
   function cloudEnabled() {
     return settings && settings.storage && settings.storage !== 'local';
   }
 
   function renderFull(doc, newTitles) {
-    MPT.overlay.render(MPT.buildRenderModel(doc), {
+    var model = MPT.buildRenderModel(doc);
+    lastModel = model;
+    MPT.overlay.render(model, {
       tracked: true, newTitles: newTitles, onCaptureAll: onCaptureAll,
-      hasMore: MPT.dom.hasMore(), onToggle: turnOff
+      hasMore: MPT.dom.hasMore(), onToggle: turnOff,
+      collapsed: settings.overlayCollapsed,
+      onLangChange: function () { if (lastModel) MPT.inline.inject(lastModel); }
     });
+    MPT.inline.inject(model);   // per-paper 📈 icons in the native list
   }
 
   function captureAndRender(fullSnapshot, silent) {
@@ -57,6 +64,7 @@
   function turnOff() {
     MPT.setTracked(scholarId, false).then(function () {
       settings.trackedIds = settings.trackedIds.filter(function (x) { return x !== scholarId; });
+      MPT.inline.clear();
       MPT.overlay.renderToggleOff({ scholarId: scholarId, name: scholarName }, { onToggle: turnOn });
     });
   }
@@ -86,6 +94,6 @@
 
   MPT.storage.local.ensureMigrated()
     .then(function () { return MPT.getSettings(); })
-    .then(function (s) { settings = s; AUTO ? runAuto() : runInteractive(); })
+    .then(function (s) { settings = s; MPT.setLangValue(s.lang || MPT.detectLang()); AUTO ? runAuto() : runInteractive(); })
     .catch(function (e) { console.warn('[MyPaperTrend]', e); });
 })(typeof globalThis !== 'undefined' ? globalThis : self);

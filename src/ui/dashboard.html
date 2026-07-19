@@ -93,22 +93,22 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
   </div>
   <div class="stats" id="stats"></div>
   <div class="section">
-    <div class="section-title">📈 Total Citations — All-Time Trend</div>
+    <div class="section-title">📈 <span data-i18n="dashTrend">Total Citations — All-Time Trend</span></div>
     <div class="chart-wrap"><canvas id="overallChart"></canvas></div>
   </div>
   <div class="section" id="milestonesSec" style="display:none">
-    <div class="section-title">🎉 Recent Milestones</div>
+    <div class="section-title">🎉 <span data-i18n="dashMilestones">Recent Milestones</span></div>
     <div id="milestones" class="milestones"></div>
   </div>
   <div class="section">
-    <div class="section-title">📄 Papers</div>
+    <div class="section-title">📄 <span data-i18n="dashPapers">Papers</span></div>
     <div class="controls">
-      <input class="search-box" id="searchInput" type="text" placeholder="🔍 Search papers…">
-      <span class="sort-label">Sort:</span>
-      <button class="sort-btn active" data-sort="cites">Citations</button>
-      <button class="sort-btn" data-sort="growth">Growth</button>
-      <button class="sort-btn" data-sort="year">Year</button>
-      <button class="sort-btn" data-sort="new">Newest</button>
+      <input class="search-box" id="searchInput" type="text" data-i18n-ph="searchPh" placeholder="🔍 Search papers…">
+      <span class="sort-label" data-i18n="sort">Sort:</span>
+      <button class="sort-btn active" data-sort="cites" data-i18n="sortCites">Citations</button>
+      <button class="sort-btn" data-sort="growth" data-i18n="sortGrowth">Growth</button>
+      <button class="sort-btn" data-sort="year" data-i18n="sortYear">Year</button>
+      <button class="sort-btn" data-sort="new" data-i18n="sortNew">Newest</button>
     </div>
     <div id="list"><div class="loading">⏳ Loading…</div></div>
   </div>
@@ -116,6 +116,7 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <script src="../vendor/chart.umd.min.js"></script>
+<script src="../core/i18n.js"></script>
 <script src="../core/schema.js"></script>
 <script src="../core/normalizer.js"></script>
 <script src="../core/settings.js"></script>

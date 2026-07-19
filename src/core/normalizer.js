@@ -131,7 +131,7 @@
       var isNew = !!firstSeen && !!maxDate && MPT.daysBetween(firstSeen, maxDate) <= MPT.NEW_WINDOW_DAYS && firstSeen !== firstDate;
       if (isNew) newCount++;
       papers.push({
-        title: t, year: entry.year || '', meta: entry.meta || {},
+        title: t, year: entry.year || '', pubId: entry.pub_id || '', meta: entry.meta || {},
         series: series, latest: latest, prev: prev, firstSeen: firstSeen,
         isNew: isNew, totalGain: hs.length ? latest - hs[0].citations : 0
       });

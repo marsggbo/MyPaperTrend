@@ -12,6 +12,8 @@
     activeProfileId: '',              // last-viewed tracked profile (default view in popup/dashboard)
     autoUpdate: true,                 // daily background-tab refresh of tracked profiles
     autoUpdateTime: '03:00',          // local time HH:MM for the daily refresh
+    lang: '',                         // '' = auto-detect | 'en' | 'zh'
+    overlayCollapsed: false,          // remember the folded state of the on-page panel
     onboarded: false
   };
 
@@ -30,6 +32,8 @@
         activeProfileId: s.activeProfileId || tracked[0] || '',
         autoUpdate: s.autoUpdate !== undefined ? s.autoUpdate : d.autoUpdate,
         autoUpdateTime: s.autoUpdateTime || d.autoUpdateTime,
+        lang: s.lang || '',
+        overlayCollapsed: !!s.overlayCollapsed,
         onboarded: !!s.onboarded
       };
     });

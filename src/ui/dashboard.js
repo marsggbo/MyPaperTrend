@@ -177,12 +177,13 @@
     var avgAll = allD.length ? allD.reduce(function (a, v) { return a + v; }, 0) / allD.length : 0;
     document.getElementById('lastUpdated').textContent =
       (m.profile.name ? m.profile.name + ' · ' : '') + 'Last updated: ' + (m.updated || '—') + ' · ' + m.papers.length + ' papers over ' + m.dates.length + ' days';
+    var T = MPT.t;
     document.getElementById('stats').innerHTML =
-      card('📚', 'Total Citations', total.toLocaleString(), fmt(todayNew) + ' latest', todayNew) +
-      card('🔥', 'Latest New', fmt(todayNew), 'vs previous capture', todayNew) +
-      card('📄', 'Papers Tracked', m.papers.length, m.newCount > 0 ? ('✨ ' + m.newCount + ' new') : (m.dates.length + ' days'), m.newCount) +
-      (m.hindex != null ? card('🏅', 'h-index', m.hindex, m.i10 != null ? ('i10: ' + m.i10) : '', 0) : '') +
-      card('📈', '7-Day Avg', avg7.toFixed(1), 'all-time avg ' + avgAll.toFixed(1) + '/day', avg7);
+      card('📚', T('stTotal'), total.toLocaleString(), fmt(todayNew), todayNew) +
+      card('🔥', T('stLatest'), fmt(todayNew), T('vsPrev'), todayNew) +
+      card('📄', T('stPapers'), m.papers.length, m.newCount > 0 ? ('✨ ' + m.newCount) : (m.dates.length + ' ' + T('daysTracked')), m.newCount) +
+      (m.hindex != null ? card('🏅', T('hindex'), m.hindex, m.i10 != null ? ('i10: ' + m.i10) : '', 0) : '') +
+      card('📈', T('stAvg'), avg7.toFixed(1), avgAll.toFixed(1) + '/day', avg7);
     lineChart(document.getElementById('overallChart'), m.dates.map(function (d) { return d.slice(5); }), m.totals, m.dates, 240);
   }
   function card(ico, label, value, sub, dir) {
@@ -209,6 +210,8 @@
   /* ── boot ── */
   Promise.all([MPT.storage.local.listProfiles(), MPT.getSettings()]).then(function (r) {
     var profiles = r[0], settings = r[1];
+    MPT.setLangValue(settings.lang || MPT.detectLang());
+    MPT.applyI18n(document);
     var sel = document.getElementById('profileSel');
     var current = settings.activeProfileId || (profiles[0] && profiles[0].id) || '';
 
