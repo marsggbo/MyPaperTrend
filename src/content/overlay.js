@@ -32,8 +32,8 @@
     '#mpt-root .up{color:#188038}#mpt-root .down{color:#d93025}',
     '#mpt-root .mpt-chart{height:170px;position:relative}',
     '#mpt-root .mpt-actions{display:flex;gap:8px;margin-top:14px}',
-    '#mpt-root .mpt-btn{flex:1;text-align:center;font-size:12px;font-weight:600;padding:8px 6px;border-radius:8px;',
-    'border:1px solid #dadce0;background:#fff;color:#3c4043;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '#mpt-root .mpt-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:600;padding:8px 6px;border-radius:8px;',
+    'border:1px solid #dadce0;background:#fff;color:#3c4043;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden}',
     '#mpt-root .mpt-btn:hover{background:#f1f3f4;border-color:#1a73e8;color:#1a73e8}',
     '#mpt-root .mpt-btn[disabled]{opacity:.5;cursor:default}',
     '#mpt-root .mpt-hint{font-size:11.5px;color:#8a6d00;background:#fef7e0;border:1px solid #feefc3;border-radius:6px;padding:7px 10px;margin-top:10px;line-height:1.5}',
@@ -151,7 +151,6 @@
             '<button class="mpt-btn" id="mpt-export">⬇ ' + T('exportJSON') + '</button>' +
             '<button class="mpt-btn" id="mpt-settings">⚙ ' + T('settings') + '</button>' +
           '</div>' +
-          '<div class="mpt-note">' + T('noteTotal') + '</div>' +
           '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a></div>' +
         '</div>';
 
