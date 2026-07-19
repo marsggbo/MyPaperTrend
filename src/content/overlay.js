@@ -31,10 +31,11 @@
     '#mpt-root .mpt-chip .d{font-size:10.5px;margin-top:2px;color:#80868b}',
     '#mpt-root .up{color:#188038}#mpt-root .down{color:#d93025}',
     '#mpt-root .mpt-chart{height:170px;position:relative}',
-    '#mpt-root .mpt-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}',
-    '#mpt-root .mpt-link{font-size:12.5px;font-weight:600;color:#1a73e8;cursor:pointer;background:none;border:0;padding:0}',
-    '#mpt-root .mpt-link:hover{text-decoration:underline}',
-    '#mpt-root .mpt-link[disabled]{opacity:.5;cursor:default;text-decoration:none}',
+    '#mpt-root .mpt-actions{display:flex;gap:8px;margin-top:14px}',
+    '#mpt-root .mpt-btn{flex:1;text-align:center;font-size:12px;font-weight:600;padding:8px 6px;border-radius:8px;',
+    'border:1px solid #dadce0;background:#fff;color:#3c4043;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '#mpt-root .mpt-btn:hover{background:#f1f3f4;border-color:#1a73e8;color:#1a73e8}',
+    '#mpt-root .mpt-btn[disabled]{opacity:.5;cursor:default}',
     '#mpt-root .mpt-hint{font-size:11.5px;color:#8a6d00;background:#fef7e0;border:1px solid #feefc3;border-radius:6px;padding:7px 10px;margin-top:10px;line-height:1.5}',
     '#mpt-root .mpt-note{font-size:11px;color:#9aa0a6;margin-top:10px;line-height:1.5}',
     '#mpt-root .mpt-optin{font-size:12.5px;color:#5f6368;line-height:1.55;padding:12px 14px}',
@@ -44,7 +45,8 @@
     '#mpt-root{background:#202124;border-color:#3c4043;color:#e8eaed}',
     '#mpt-root .mpt-bar{background:#282a2d;border-color:#3c4043}',
     '#mpt-root .mpt-chip{background:#282a2d;border-color:#3c4043}#mpt-root .mpt-chip .n{color:#8ab4f8}',
-    '#mpt-root .mpt-lang span.on{background:#283142;color:#8ab4f8}#mpt-root .mpt-link{color:#8ab4f8}',
+    '#mpt-root .mpt-lang span.on{background:#283142;color:#8ab4f8}',
+    '#mpt-root .mpt-btn{background:#202124;border-color:#3c4043;color:#e8eaed}#mpt-root .mpt-btn:hover{background:#282a2d;border-color:#8ab4f8;color:#8ab4f8}',
     '#mpt-root .mpt-credit{border-color:#3c4043}#mpt-root .mpt-credit a{color:#8ab4f8}',
     '#mpt-root .mpt-hint{background:#332b00;border-color:#5c4b00;color:#fdd663}}'
   ].join('');
@@ -58,6 +60,10 @@
     var root = document.getElementById('mpt-root');
     if (root) return root;
     root = document.createElement('div'); root.id = 'mpt-root';
+    // Insert above the articles table so the panel width lines up with the paper list
+    // and never overlaps the avatar / profile header.
+    var table = document.getElementById('gsc_a_t');
+    if (table && table.parentNode) { table.parentNode.insertBefore(root, table); return root; }
     var anchor = document.getElementById('gsc_prf') || document.getElementById('gsc_bdy');
     if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(root, anchor.nextSibling);
     else document.body.insertBefore(root, document.body.firstChild);
@@ -104,7 +110,7 @@
           '<div class="mpt-toggle" id="mpt-toggle"><span>' + T('track') + '</span><span class="mpt-sw"></span></div>' +
         '</div>' +
         '<div class="mpt-body"><div class="mpt-optin" style="padding:0">' + T('trackPrompt', { name: esc(info.name || T('thisScholar')) }) + '</div>' +
-        '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://github.com/marsggbo" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a></div></div>';
+        '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a></div></div>';
       document.getElementById('mpt-toggle').onclick = function () { handlers.onToggle && handlers.onToggle(); };
       wireLang(root);
     },
@@ -140,13 +146,13 @@
           '<div class="mpt-chart"><canvas id="mpt-canvas"></canvas></div>' +
           ((opts && opts.hasMore) ? '<div class="mpt-hint">⚠️ ' + T('hintMore') + '</div>' : '') +
           '<div class="mpt-actions">' +
-            '<button class="mpt-link" id="mpt-capture">🔄 ' + T('captureAll') + '</button>' +
-            '<button class="mpt-link" id="mpt-dash">📊 ' + T('fullDashboard') + '</button>' +
-            '<button class="mpt-link" id="mpt-export">⬇ ' + T('exportJSON') + '</button>' +
-            '<button class="mpt-link" id="mpt-settings">⚙ ' + T('settings') + '</button>' +
+            '<button class="mpt-btn" id="mpt-capture">🔄 ' + T('captureAll') + '</button>' +
+            '<button class="mpt-btn" id="mpt-dash">📊 ' + T('fullDashboard') + '</button>' +
+            '<button class="mpt-btn" id="mpt-export">⬇ ' + T('exportJSON') + '</button>' +
+            '<button class="mpt-btn" id="mpt-settings">⚙ ' + T('settings') + '</button>' +
           '</div>' +
           '<div class="mpt-note">' + T('noteTotal') + '</div>' +
-          '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://github.com/marsggbo" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a></div>' +
+          '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a></div>' +
         '</div>';
 
       if (g.Chart && model.dates.length) {

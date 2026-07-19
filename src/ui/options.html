@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MyPaperTrend — Settings</title>
 <style>
-:root{--bg:#f5f6f8;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e6e9ef;--accent:#6366f1;--field:#f7f9fc}
-@media(prefers-color-scheme:dark){:root{--bg:#0a0f1e;--card:#111a2e;--text:#f1f5f9;--muted:#94a3b8;--border:#243149;--accent:#818cf8;--field:#0d1526}}
+:root{--bg:#f5f6f8;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e6e9ef;--accent:#1a73e8;--field:#f7f9fc}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0f1e;--card:#111a2e;--text:#f1f5f9;--muted:#94a3b8;--border:#243149;--accent:#8ab4f8;--field:#0d1526}}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding:2rem;display:grid;place-items:start center}
-.wrap{max-width:620px;width:100%;display:flex;flex-direction:column;gap:1.2rem}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);padding:2rem;display:grid;place-items:start center}
+.wrap{max-width:640px;width:100%;display:flex;flex-direction:column;gap:1.2rem}
 h1{font-size:1.4rem;font-weight:800;display:flex;align-items:center;gap:.5rem}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.4rem}
 .card h2{font-size:1rem;font-weight:700;margin-bottom:.4rem}
 .hint{font-size:.82rem;color:var(--muted);line-height:1.55;margin-bottom:1rem}
 label{display:block;font-size:.82rem;font-weight:600;margin:.7rem 0 .3rem}
-input[type=text],input[type=password],select{width:100%;padding:.55rem .7rem;border:1px solid var(--border);border-radius:9px;background:var(--field);color:var(--text);font:inherit;font-size:.85rem;outline:none}
+input[type=text],input[type=password],input[type=time],select{width:100%;padding:.55rem .7rem;border:1px solid var(--border);border-radius:9px;background:var(--field);color:var(--text);font:inherit;font-size:.85rem;outline:none}
 input:focus,select:focus{border-color:var(--accent)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
 .check{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.85rem}
@@ -27,14 +27,22 @@ button.ghost{background:transparent;color:var(--text);border-color:var(--border)
 .saved.show{opacity:1}
 a{color:var(--accent)}
 code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8rem}
+/* login buttons */
+.login-row{display:flex;gap:.6rem;margin:.5rem 0 .8rem}
+.login-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem .5rem;border:1px solid var(--border);border-radius:10px;background:var(--field);color:var(--text);cursor:pointer;font:inherit;font-size:.88rem;font-weight:600;transition:all .15s;min-width:0}
+.login-btn:hover{border-color:var(--accent)}
+.login-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);box-shadow:inset 0 0 0 1px var(--accent)}
+.login-btn .lg{display:inline-flex;width:18px;height:18px;flex-shrink:0}
+.login-btn .lg svg{width:18px;height:18px;display:block}
+.acct-status{font-size:.83rem;color:var(--muted);margin-top:.2rem}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>⚙ MyPaperTrend Settings</h1>
+  <h1>⚙ <span data-i18n="settingsTitle">MyPaperTrend Settings</span></h1>
 
   <div class="bar" style="justify-content:flex-end;margin-top:-.6rem">
-    <label for="langSel" style="font-size:.82rem;color:var(--muted)">🌐 Language / 语言</label>
+    <label for="langSel" style="font-size:.82rem;color:var(--muted);margin:0">🌐 Language / 语言</label>
     <select id="langSel" style="max-width:150px">
       <option value="">Auto</option>
       <option value="en">English</option>
@@ -43,59 +51,53 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
   </div>
 
   <div class="card">
-    <h2>Account &amp; cloud sync</h2>
-    <div class="hint">Sign in with GitHub to sync your history to the cloud — it creates (or forks) a <code>mypapertrend-data</code> repo under your account and writes one file per scholar. No manual token needed.</div>
-    <div class="bar">
-      <button id="ghLogin">🔓 Sign in with GitHub</button>
-      <button class="ghost" id="ghLogout" style="display:none">Sign out</button>
-      <span id="ghStatus" style="font-size:.85rem;color:var(--muted)"></span>
+    <h2 data-i18n="acctTitle">Account &amp; cloud sync</h2>
+    <div class="hint" data-i18n="acctHint">Choose where your history is stored.</div>
+    <select id="storage" style="display:none">
+      <option value="local">local</option><option value="github">github</option><option value="gdrive">gdrive</option>
+    </select>
+    <div class="login-row">
+      <button type="button" class="login-btn" id="btnLocal" data-storage="local">
+        <span class="lg"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm-2 14h20v2H2z"/></svg></span>
+        <span data-i18n="storLocal">Local only</span>
+      </button>
+      <button type="button" class="login-btn" id="btnGitHub" data-storage="github">
+        <span class="lg"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></span>
+        <span>GitHub</span>
+      </button>
+      <button type="button" class="login-btn" id="btnGoogle" data-storage="gdrive">
+        <span class="lg"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></span>
+        <span data-i18n="storGoogle">Google Drive</span>
+      </button>
     </div>
+    <div class="acct-status" id="acctStatus"></div>
     <div id="ghAuthBox" class="hint" style="display:none;margin-top:.9rem"></div>
-    <div class="bar" style="margin-top:1rem">
-      <button id="ggLogin">🔓 Sign in with Google (Drive)</button>
-      <button class="ghost" id="ggLogout" style="display:none">Sign out</button>
-      <span id="ggStatus" style="font-size:.85rem;color:var(--muted)"></span>
+
+    <div id="ghBox" class="hidden" style="margin-top:.6rem">
+      <div class="row">
+        <div><label for="ghOwner">GitHub owner</label><input type="text" id="ghOwner"></div>
+        <div><label for="ghRepo">Repo name</label><input type="text" id="ghRepo"></div>
+      </div>
+      <div class="row">
+        <div><label for="ghPath">File path (<code>{id}</code>)</label><input type="text" id="ghPath" placeholder="citations-{id}.json"></div>
+        <div><label for="ghBranch">Branch</label><input type="text" id="ghBranch" placeholder="main"></div>
+      </div>
+      <input type="hidden" id="ghToken">
     </div>
   </div>
 
   <div class="card">
-    <h2>Tracking &amp; auto-update</h2>
-    <div class="hint">You track a scholar by flipping the <b>Track</b> switch on their profile page. Each tracked scholar is stored separately, so nobody's data mixes. Auto-update opens each tracked profile in a hidden background tab at the time below, records <b>all</b> their papers, and closes it — no scraping API needed (runs whenever the browser is open).</div>
-    <div class="check"><input type="checkbox" id="autoUpdate"><label for="autoUpdate" style="margin:0">Auto-update tracked scholars daily</label></div>
-    <label for="autoTime">Daily update time (local)</label>
+    <h2 data-i18n="trackTitle">Tracking &amp; auto-update</h2>
+    <div class="hint" data-i18n="trackHint">Track a scholar by flipping the Track switch on their profile.</div>
+    <div class="check"><input type="checkbox" id="autoUpdate"><label for="autoUpdate" style="margin:0" data-i18n="autoDaily">Auto-update tracked scholars daily</label></div>
+    <label for="autoTime" data-i18n="autoTimeLabel">Daily update time (local)</label>
     <input type="time" id="autoTime" style="max-width:140px">
     <div id="trackedList" class="hint" style="margin-top:.8rem"></div>
   </div>
 
   <div class="card">
-    <h2>Storage</h2>
-    <div class="hint">By default your data lives <b>locally in this browser</b> (no account needed). Optionally mirror it to a GitHub repo for backup, cross-device sync, or to feed a public dashboard. GitHub sync applies to your primary profile only.</div>
-    <label for="storage">Where to store history</label>
-    <select id="storage">
-      <option value="local">Local only (default)</option>
-      <option value="github">Local + GitHub repo</option>
-      <option value="gdrive">Local + Google Drive</option>
-    </select>
-
-    <div id="ghBox" class="hidden">
-      <div class="row">
-        <div><label for="ghOwner">GitHub owner</label><input type="text" id="ghOwner" placeholder="your-username"></div>
-        <div><label for="ghRepo">Repo name</label><input type="text" id="ghRepo" placeholder="citation-tracker"></div>
-      </div>
-      <div class="row">
-        <div><label for="ghPath">File path (<code>{id}</code> = scholar id)</label><input type="text" id="ghPath" placeholder="citations-{id}.json"></div>
-        <div><label for="ghBranch">Branch</label><input type="text" id="ghBranch" placeholder="main"></div>
-      </div>
-      <label for="ghToken">Fine-grained token (Contents: Read/Write on that repo)</label>
-      <input type="password" id="ghToken" placeholder="github_pat_…">
-      <div class="hint" style="margin-top:.5rem">Stored only in this browser. Never commit tokens into a repo.</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Data source (advanced)</h2>
-    <div class="hint">Default is reading your Scholar page directly — free and never blocked. You can add a paid API as a fallback (e.g. for background updates).</div>
-    <label for="fetch">Fetch provider</label>
+    <h2 data-i18n="sourceTitle">Data source (advanced)</h2>
+    <div class="hint" data-i18n="sourceHint">Default reads your Scholar page directly.</div>
     <select id="fetch">
       <option value="dom">Browser DOM (default)</option>
       <option value="scraperapi">ScraperAPI (bring your own key)</option>
@@ -103,13 +105,13 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
     </select>
     <div id="scraperBox" class="hidden"><label for="scraperKey">ScraperAPI key</label><input type="password" id="scraperKey"></div>
     <div id="serpBox" class="hidden"><label for="serpKey">SerpApi key</label><input type="password" id="serpKey"></div>
-    <div class="check"><input type="checkbox" id="enrich"><label for="enrich" style="margin:0">Enrich papers with authors / abstract / links via Semantic Scholar</label></div>
+    <div class="check"><input type="checkbox" id="enrich"><label for="enrich" style="margin:0" data-i18n="enrichLabel">Enrich papers via Semantic Scholar</label></div>
   </div>
 
   <div class="bar">
-    <button id="save">Save settings</button>
-    <button class="ghost" id="dash">Open dashboard</button>
-    <span class="saved" id="saved">✓ Saved</span>
+    <button id="save" data-i18n="save">Save settings</button>
+    <button class="ghost" id="dash" data-i18n="openDashboard">Open dashboard</button>
+    <span class="saved" id="saved">✓</span>
   </div>
 </div>
 

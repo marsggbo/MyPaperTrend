@@ -117,9 +117,8 @@
 
   function toggleCard(gi) {
     var el = document.getElementById('paper-' + gi); if (!el) return;
-    var was = el.classList.contains('open');
-    document.querySelectorAll('.paper.open').forEach(function (x) { x.classList.remove('open'); });
-    if (was) return;
+    // independent toggle — user can keep several papers open at once
+    if (el.classList.contains('open')) { el.classList.remove('open'); return; }
     el.classList.add('open');
     if (!charts[gi]) {
       var p = MODEL.papers[gi];

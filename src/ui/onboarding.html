@@ -24,29 +24,34 @@ button{font:inherit;font-weight:700;padding:.7rem 1.3rem;border-radius:10px;curs
 .primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .ghost{background:transparent;color:var(--text)}
 a{color:var(--accent)}
+.lang{display:flex;justify-content:flex-end;gap:2px;margin-bottom:.7rem;font-size:12px;font-weight:700}
+.lang span{cursor:pointer;padding:3px 9px;border-radius:6px;color:var(--muted)}
+.lang span.on{background:rgba(26,115,232,.12);color:var(--accent)}
 </style>
 </head>
 <body>
 <div class="card">
+  <div class="lang"><span data-lang="en">EN</span><span data-lang="zh">中</span></div>
   <div class="hero">
-    <h1>📈 Welcome to MyPaperTrend</h1>
-    <p>Your Google Scholar citations, tracked over time — right on your profile.</p>
+    <h1>📈 <span data-i18n="obTitle">Welcome to MyPaperTrend</span></h1>
+    <p data-i18n="obSubtitle">Your Google Scholar citations, tracked over time — right on your profile.</p>
   </div>
 
   <div class="steps">
-    <div class="step"><div class="ico">1️⃣</div><div><div class="t">Open a Google Scholar profile &amp; flip “Track”</div><div class="d">Go to any <a href="https://scholar.google.com/citations" target="_blank">Scholar profile</a> (yours or anyone you follow) and turn on the <b>Track</b> switch in the panel. Nothing is recorded until you do — so different people’s data never mix.</div></div></div>
-    <div class="step"><div class="ico">2️⃣</div><div><div class="t">It reads the page directly — no scraping API, no login</div><div class="d">MyPaperTrend reads the numbers already on your screen (including Scholar’s own citation total, correct even when paginated). Nothing is scraped from a server, so Google never blocks it.</div></div></div>
-    <div class="step"><div class="ico">3️⃣</div><div><div class="t">Set it and forget it</div><div class="d">Turn on daily auto-update in Settings and pick a time — it refreshes every tracked scholar automatically (reading <b>all</b> their papers) whenever your browser is open. Or click “Capture all pages” any time.</div></div></div>
+    <div class="step"><div class="ico">1️⃣</div><div><div class="t" data-i18n="obStep1t">Open a profile &amp; flip “Track”</div><div class="d" data-i18n="obStep1d"></div></div></div>
+    <div class="step"><div class="ico">2️⃣</div><div><div class="t" data-i18n="obStep2t"></div><div class="d" data-i18n="obStep2d"></div></div></div>
+    <div class="step"><div class="ico">3️⃣</div><div><div class="t" data-i18n="obStep3t"></div><div class="d" data-i18n="obStep3d"></div></div></div>
   </div>
 
-  <div class="privacy">🔒 <b>Your data stays on your device.</b> History is stored locally in your browser — no account required. You can export it any time, or optionally connect Google Drive / a GitHub repo in Advanced settings.</div>
+  <div class="privacy">🔒 <span data-i18n="obPrivacy"></span></div>
 
   <div class="actions">
-    <button class="primary" id="start">Get started</button>
-    <button class="ghost" id="advanced">Advanced settings</button>
+    <button class="primary" id="start" data-i18n="obStart">Get started</button>
+    <button class="ghost" id="advanced" data-i18n="obAdvanced">Advanced settings</button>
   </div>
 </div>
 
+<script src="../core/i18n.js"></script>
 <script src="../core/schema.js"></script>
 <script src="../core/settings.js"></script>
 <script src="onboarding.js"></script>

@@ -10,7 +10,7 @@
     '.mpt-inline-ico:hover{opacity:1}',
     '.gsc_a_tr.mpt-open .mpt-inline-ico{opacity:1}',
     '.mpt-detail>td{padding:0 !important;background:#f8f9fb;border-bottom:1px solid #e0e0e0}',
-    '.mpt-detail-in{padding:10px 14px 14px}',
+    '.mpt-detail-in{padding:10px 16px 14px 34px}',
     '.mpt-detail-h{font-size:12px;font-weight:600;color:#5f6368;margin-bottom:6px;font-family:Arial,sans-serif}',
     '.mpt-detail-in canvas{height:150px !important}',
     '@media(prefers-color-scheme:dark){',
@@ -40,8 +40,11 @@
 
   function toggle(row, paper, idx) {
     var nxt = row.nextElementSibling;
-    if (nxt && nxt.classList.contains('mpt-detail') && nxt.getAttribute('data-idx') === String(idx)) { closeAll(); return; }
-    closeAll();
+    // independent toggle — multiple papers can stay open at once
+    if (nxt && nxt.classList.contains('mpt-detail') && nxt.getAttribute('data-idx') === String(idx)) {
+      if (charts[idx]) { try { charts[idx].destroy(); } catch (e) {} delete charts[idx]; }
+      nxt.remove(); row.classList.remove('mpt-open'); return;
+    }
     row.classList.add('mpt-open');
     var tr = document.createElement('tr');
     tr.className = 'mpt-detail'; tr.setAttribute('data-idx', idx);

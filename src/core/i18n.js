@@ -28,7 +28,29 @@
       sort: 'Sort', sortCites: 'Citations', sortGrowth: 'Growth', sortYear: 'Year', sortNew: 'Newest',
       searchPh: '🔍 Search papers…',
       stTotal: 'Total Citations', stLatest: 'Latest New', stPapers: 'Papers Tracked', stAvg: '7-Day Avg',
-      openDashboard: 'Open full dashboard'
+      openDashboard: 'Open full dashboard',
+      // settings page
+      settingsTitle: 'MyPaperTrend Settings',
+      acctTitle: 'Account & cloud sync',
+      acctHint: 'Choose where your history is stored. Local keeps everything in this browser. GitHub / Google Drive sync one file per scholar to your own account — no manual token needed.',
+      storLocal: 'Local only', storGitHub: 'GitHub', storGoogle: 'Google Drive',
+      notSignedIn: 'Not signed in — data stays local.',
+      syncedGh: 'Synced to {repo}', syncedGg: 'Synced to your Google Drive',
+      trackTitle: 'Tracking & auto-update',
+      trackHint: 'Track a scholar by flipping the Track switch on their profile. Each is stored separately. Auto-update opens each tracked profile in a hidden tab at the time below, records all papers, and closes it — no scraping API needed.',
+      autoDaily: 'Auto-update tracked scholars daily', autoTimeLabel: 'Daily update time (local)',
+      trackedNone: 'No scholars tracked yet — open a Scholar profile and flip the Track switch.',
+      trackedList: 'Tracked scholars:',
+      sourceTitle: 'Data source (advanced)',
+      sourceHint: 'Default reads your Scholar page directly — free and never blocked. Add a paid API only if you want background updates without opening the browser.',
+      enrichLabel: 'Enrich papers with authors / abstract / links via Semantic Scholar',
+      // onboarding
+      obTitle: 'Welcome to MyPaperTrend', obSubtitle: 'Your Google Scholar citations, tracked over time — right on your profile.',
+      obStep1t: 'Open a profile & flip “Track”', obStep1d: 'Go to any Scholar profile (yours or anyone you follow) and turn on the Track switch. Nothing is recorded until you do — so different people’s data never mix.',
+      obStep2t: 'It reads the page directly — no scraping API, no login', obStep2d: 'MyPaperTrend reads the numbers already on your screen (including Scholar’s own total, correct even when paginated). Google never blocks it.',
+      obStep3t: 'Set it and forget it', obStep3d: 'Turn on daily auto-update in Settings and pick a time — it refreshes every tracked scholar automatically. Or click “Capture all pages” any time.',
+      obPrivacy: 'Your data stays on your device. History is stored locally — no account required. You can export it any time, or connect Google Drive / GitHub in Advanced settings.',
+      obStart: 'Get started', obAdvanced: 'Advanced settings'
     },
     zh: {
       brand: 'MyPaperTrend',
@@ -54,7 +76,27 @@
       sort: '排序', sortCites: '引用', sortGrowth: '增长', sortYear: '年份', sortNew: '最新',
       searchPh: '🔍 搜索论文…',
       stTotal: '总引用', stLatest: '最新新增', stPapers: '追踪论文', stAvg: '7 日均值',
-      openDashboard: '打开完整看板'
+      openDashboard: '打开完整看板',
+      settingsTitle: 'MyPaperTrend 设置',
+      acctTitle: '账号与云同步',
+      acctHint: '选择数据存储位置。「仅本地」把一切留在此浏览器；GitHub / Google Drive 会把每个学者同步为一个文件到你自己的账号——无需手填 token。',
+      storLocal: '仅本地', storGitHub: 'GitHub', storGoogle: 'Google Drive',
+      notSignedIn: '未登录——数据仅存本地。',
+      syncedGh: '已同步到 {repo}', syncedGg: '已同步到你的 Google Drive',
+      trackTitle: '追踪与自动更新',
+      trackHint: '在学者主页打开「追踪」开关即可追踪，每位学者分开存储。自动更新会在下方设定的时间用隐藏标签页打开每个已追踪主页、记录全部论文后关闭——无需任何爬虫 API。',
+      autoDaily: '每天自动更新已追踪的学者', autoTimeLabel: '每日更新时间（本地）',
+      trackedNone: '尚未追踪任何学者——打开某个 Scholar 主页并打开「追踪」开关。',
+      trackedList: '已追踪学者：',
+      sourceTitle: '数据来源（高级）',
+      sourceHint: '默认直接读取你的 Scholar 页面——免费且不会被封。只有想在不打开浏览器时后台更新，才需要加付费 API。',
+      enrichLabel: '通过 Semantic Scholar 补充作者/摘要/链接',
+      obTitle: '欢迎使用 MyPaperTrend', obSubtitle: '把你的 Google Scholar 引用趋势，直接展示在主页上。',
+      obStep1t: '打开主页并开启「追踪」', obStep1d: '打开任意 Scholar 主页（你自己的或你关注的人），打开「追踪」开关。不打开就不会记录——不同人的数据永不混。',
+      obStep2t: '直接读取页面——无需爬虫 API、无需登录', obStep2d: 'MyPaperTrend 读取你屏幕上已有的数字（包括 Scholar 自己的总量，分页也准确），Google 不会拦截。',
+      obStep3t: '设置一次，之后自动', obStep3d: '在设置里开启每日自动更新并选择时间，它会自动刷新每位已追踪学者；也可随时点「采集全部论文」。',
+      obPrivacy: '你的数据留在本机。历史存在本地——无需账号。可随时导出，或在高级设置里连接 Google Drive / GitHub。',
+      obStart: '开始使用', obAdvanced: '高级设置'
     }
   };
 
