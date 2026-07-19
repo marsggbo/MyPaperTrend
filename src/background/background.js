@@ -6,17 +6,11 @@ importScripts(
   '../core/settings.js',
   '../core/storage/local.js',
   '../core/storage/github.js',
-  '../core/storage/gdrive.js'
+  '../core/storage/gdrive.js',
+  '../core/auth/google.js'
 );
 
-function getGoogleToken(interactive) {
-  return new Promise(function (resolve, reject) {
-    chrome.identity.getAuthToken({ interactive: !!interactive }, function (t) {
-      if (chrome.runtime.lastError || !t) return reject(new Error((chrome.runtime.lastError && chrome.runtime.lastError.message) || 'no google token'));
-      resolve(t);
-    });
-  });
-}
+function getGoogleToken(interactive) { return MPT.googleAuth.getToken(interactive); }
 
 var MPT = globalThis.MPT;
 var ALARM = 'mpt-daily';

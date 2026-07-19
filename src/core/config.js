@@ -6,6 +6,10 @@
   MPT.GITHUB_SCOPE = 'public_repo';              // public data repo; use 'repo' for private
   MPT.DATA_TEMPLATE = 'marsggbo/mypapertrend-data'; // forked when a new user signs in
   MPT.DATA_REPO_NAME = 'mypapertrend-data';
-  // Google OAuth (also declared in manifest.oauth2 for chrome.identity.getAuthToken)
+  // Google OAuth. GOOGLE_CLIENT_ID = "Chrome extension" client (manifest.oauth2 → getAuthToken, Chrome).
   MPT.GOOGLE_CLIENT_ID = '490407427089-31q855a57gae0n3h1c753n44sp087lp1.apps.googleusercontent.com';
+  // GOOGLE_WEB_CLIENT_ID = "Web application" client for launchWebAuthFlow (Edge & other Chromium).
+  // Create one in the same GCP project with redirect URI:
+  //   https://ehfjnfggcbejkjcfdnbiegabjheabfho.chromiumapp.org/
+  MPT.GOOGLE_WEB_CLIENT_ID = '';
 })(typeof globalThis !== 'undefined' ? globalThis : self);
