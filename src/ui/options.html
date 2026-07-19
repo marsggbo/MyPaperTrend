@@ -34,6 +34,17 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
   <h1>⚙ MyPaperTrend Settings</h1>
 
   <div class="card">
+    <h2>Account &amp; cloud sync</h2>
+    <div class="hint">Sign in with GitHub to sync your history to the cloud — it creates (or forks) a <code>mypapertrend-data</code> repo under your account and writes one file per scholar. No manual token needed.</div>
+    <div class="bar">
+      <button id="ghLogin">🔓 Sign in with GitHub</button>
+      <button class="ghost" id="ghLogout" style="display:none">Sign out</button>
+      <span id="ghStatus" style="font-size:.85rem;color:var(--muted)"></span>
+    </div>
+    <div id="ghAuthBox" class="hint" style="display:none;margin-top:.9rem"></div>
+  </div>
+
+  <div class="card">
     <h2>Tracking &amp; auto-update</h2>
     <div class="hint">You track a scholar by flipping the <b>Track</b> switch on their profile page. Each tracked scholar is stored separately, so nobody's data mixes. Auto-update opens each tracked profile in a hidden background tab at the time below, records <b>all</b> their papers, and closes it — no scraping API needed (runs whenever the browser is open).</div>
     <div class="check"><input type="checkbox" id="autoUpdate"><label for="autoUpdate" style="margin:0">Auto-update tracked scholars daily</label></div>
@@ -87,9 +98,11 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
   </div>
 </div>
 
+<script src="../core/config.js"></script>
 <script src="../core/schema.js"></script>
 <script src="../core/settings.js"></script>
 <script src="../core/storage/local.js"></script>
+<script src="../core/auth/github.js"></script>
 <script src="options.js"></script>
 </body>
 </html>
