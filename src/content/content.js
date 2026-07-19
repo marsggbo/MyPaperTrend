@@ -11,6 +11,10 @@
 
   var lastModel = null;
 
+  function safeSend(msg, cb) {
+    try { if (!MPT.ctxValid || MPT.ctxValid()) chrome.runtime.sendMessage(msg, cb); } catch (e) {}
+  }
+
   function cloudEnabled() {
     return settings && settings.storage && settings.storage !== 'local';
   }
@@ -37,12 +41,12 @@
       return store.saveFor(scholarId, doc).then(function () {
         if (!silent) renderFull(doc, newTitles);
         if (cloudEnabled()) {
-          chrome.runtime.sendMessage({ type: 'SYNC_CLOUD', doc: doc }, function (resp) {
+          safeSend({ type: 'SYNC_CLOUD', doc: doc }, function (resp) {
             if (!silent && resp && resp.ok && resp.doc) renderFull(resp.doc, newTitles);
           });
         }
         if (settings && settings.enrich && fullSnapshot) {
-          chrome.runtime.sendMessage({ type: 'ENRICH', scholarId: scholarId });
+          safeSend({ type: 'ENRICH', scholarId: scholarId });
         }
       });
     });
@@ -71,7 +75,7 @@
 
   /* ── scheduled background-tab update: read ALL papers, then let the SW close the tab ── */
   function runAuto() {
-    var done = function () { chrome.runtime.sendMessage({ type: 'AUTO_DONE' }); };
+    var done = function () { safeSend({ type: 'AUTO_DONE' }); };
     if (settings.trackedIds.indexOf(scholarId) < 0) { done(); return; }
     MPT.dom.loadAll().then(function () { return captureAndRender(true, true); })
       .catch(function (e) { console.warn('[MyPaperTrend] auto', e); })
@@ -82,7 +86,7 @@
     if (settings.trackedIds.indexOf(scholarId) >= 0) {
       MPT.setTracked(scholarId, true); // refresh activeProfileId
       if (cloudEnabled()) {
-        chrome.runtime.sendMessage({ type: 'PULL_CLOUD', scholarId: scholarId }, function () { captureAndRender(false); });
+        safeSend({ type: 'PULL_CLOUD', scholarId: scholarId }, function () { captureAndRender(false); });
       } else {
         captureAndRender(false);
       }

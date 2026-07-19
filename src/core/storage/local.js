@@ -10,6 +10,7 @@
 
   /* One-time move of the old single-doc store into a per-profile key. */
   function migrateLegacy() {
+    if (MPT.ctxValid && !MPT.ctxValid()) return Promise.resolve();
     return chrome.storage.local.get(LEGACY).then(function (o) {
       if (!o[LEGACY]) return;
       var d = MPT.migrate(o[LEGACY]);
@@ -28,17 +29,20 @@
     ensureMigrated: function () { return migrateLegacy(); },
 
     loadFor: function (id) {
-      if (!id) return Promise.resolve(null);
-      return chrome.storage.local.get(key(id)).then(function (o) { return o[key(id)] ? MPT.migrate(o[key(id)]) : null; });
+      if (!id || (MPT.ctxValid && !MPT.ctxValid())) return Promise.resolve(null);
+      try { return chrome.storage.local.get(key(id)).then(function (o) { return o[key(id)] ? MPT.migrate(o[key(id)]) : null; }, function () { return null; }); }
+      catch (e) { return Promise.resolve(null); }
     },
     saveFor: function (id, doc) {
+      if (MPT.ctxValid && !MPT.ctxValid()) return Promise.resolve();
       var set = {}; set[key(id)] = doc;
-      return chrome.storage.local.set(set);
+      try { return chrome.storage.local.set(set); } catch (e) { return Promise.resolve(); }
     },
-    removeFor: function (id) { return chrome.storage.local.remove(key(id)); },
+    removeFor: function (id) { try { return chrome.storage.local.remove(key(id)); } catch (e) { return Promise.resolve(); } },
 
     /* List every tracked profile (for the popup / dashboard switcher). */
     listProfiles: function () {
+      if (MPT.ctxValid && !MPT.ctxValid()) return Promise.resolve([]);
       return chrome.storage.local.get(null).then(function (obj) {
         return Object.keys(obj).filter(function (k) { return k.indexOf(PREFIX) === 0; }).map(function (k) {
           var d = MPT.migrate(obj[k]);
