@@ -65,13 +65,34 @@ $('dash').onclick = function () { chrome.tabs.create({ url: chrome.runtime.getUR
 /* ── GitHub sign-in (Device Flow) ── */
 function refreshAccount() {
   MPT.getSettings().then(function (s) {
-    var signedIn = s.storage === 'github' && s.github.token && s.github.owner;
-    $('ghStatus').textContent = signedIn ? ('✓ Signed in — syncing to ' + s.github.owner + '/' + s.github.repo) : 'Not signed in (data stays local).';
-    $('ghLogout').style.display = signedIn ? '' : 'none';
-    $('ghLogin').textContent = signedIn ? '🔄 Re-authorize GitHub' : '🔓 Sign in with GitHub';
+    var gh = s.storage === 'github' && s.github.token && s.github.owner;
+    $('ghStatus').textContent = gh ? ('✓ Syncing to ' + s.github.owner + '/' + s.github.repo) : 'Not signed in.';
+    $('ghLogout').style.display = gh ? '' : 'none';
+    $('ghLogin').textContent = gh ? '🔄 Re-authorize GitHub' : '🔓 Sign in with GitHub';
+    var gg = s.storage === 'gdrive';
+    $('ggStatus').textContent = gg ? '✓ Syncing to your Google Drive' : 'Not signed in.';
+    $('ggLogout').style.display = gg ? '' : 'none';
+    $('ggLogin').textContent = gg ? '🔄 Re-authorize Google' : '🔓 Sign in with Google (Drive)';
   });
 }
 refreshAccount();
+
+/* ── Google sign-in (chrome.identity → Drive) ── */
+$('ggLogin').onclick = function () {
+  $('ggLogin').disabled = true;
+  $('ggStatus').textContent = 'Opening Google sign-in…';
+  MPT.googleAuth.signIn().then(function () {
+    return MPT.patchSettings({ storage: 'gdrive' });
+  }).then(function () {
+    $('storage').value = 'gdrive'; toggleBoxes(); refreshAccount();
+  }).catch(function (e) {
+    $('ggStatus').textContent = '❌ ' + e.message;
+  }).then(function () { $('ggLogin').disabled = false; });
+};
+$('ggLogout').onclick = function () {
+  MPT.googleAuth.signOut().then(function () { return MPT.patchSettings({ storage: 'local' }); })
+    .then(function () { $('storage').value = 'local'; toggleBoxes(); refreshAccount(); });
+};
 
 $('ghLogin').onclick = function () {
   $('ghLogin').disabled = true;

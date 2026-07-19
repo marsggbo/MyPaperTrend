@@ -9,8 +9,8 @@
   var scholarName = MPT.dom.getName();
   var AUTO = location.hash.indexOf('mpt-auto') >= 0;   // opened by the daily scheduler
 
-  function githubEnabled() {
-    return settings && settings.storage === 'github' && settings.github && settings.github.token;
+  function cloudEnabled() {
+    return settings && settings.storage && settings.storage !== 'local';
   }
 
   function renderFull(doc, newTitles) {
@@ -29,8 +29,8 @@
       doc = MPT.mergeSnapshot(doc, snap);
       return store.saveFor(scholarId, doc).then(function () {
         if (!silent) renderFull(doc, newTitles);
-        if (githubEnabled()) {
-          chrome.runtime.sendMessage({ type: 'SYNC_GITHUB', doc: doc }, function (resp) {
+        if (cloudEnabled()) {
+          chrome.runtime.sendMessage({ type: 'SYNC_CLOUD', doc: doc }, function (resp) {
             if (!silent && resp && resp.ok && resp.doc) renderFull(resp.doc, newTitles);
           });
         }
@@ -73,8 +73,8 @@
   function runInteractive() {
     if (settings.trackedIds.indexOf(scholarId) >= 0) {
       MPT.setTracked(scholarId, true); // refresh activeProfileId
-      if (githubEnabled()) {
-        chrome.runtime.sendMessage({ type: 'PULL_GITHUB', scholarId: scholarId }, function () { captureAndRender(false); });
+      if (cloudEnabled()) {
+        chrome.runtime.sendMessage({ type: 'PULL_CLOUD', scholarId: scholarId }, function () { captureAndRender(false); });
       } else {
         captureAndRender(false);
       }

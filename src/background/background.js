@@ -1,11 +1,22 @@
 /* MyPaperTrend — background service worker. */
 importScripts(
+  '../core/config.js',
   '../core/schema.js',
   '../core/normalizer.js',
   '../core/settings.js',
   '../core/storage/local.js',
-  '../core/storage/github.js'
+  '../core/storage/github.js',
+  '../core/storage/gdrive.js'
 );
+
+function getGoogleToken(interactive) {
+  return new Promise(function (resolve, reject) {
+    chrome.identity.getAuthToken({ interactive: !!interactive }, function (t) {
+      if (chrome.runtime.lastError || !t) return reject(new Error((chrome.runtime.lastError && chrome.runtime.lastError.message) || 'no google token'));
+      resolve(t);
+    });
+  });
+}
 
 var MPT = globalThis.MPT;
 var ALARM = 'mpt-daily';
@@ -83,13 +94,13 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     return;
   } else if (msg.type === 'OPEN' && msg.page) {
     chrome.tabs.create({ url: chrome.runtime.getURL(msg.page) });
-  } else if (msg.type === 'SYNC_GITHUB' && msg.doc) {
-    syncGithub(msg.doc).then(function (merged) { sendResponse({ ok: true, doc: merged }); })
-      .catch(function (e) { console.warn('[MyPaperTrend] github sync', e); sendResponse({ ok: false, error: String(e) }); });
+  } else if (msg.type === 'SYNC_CLOUD' && msg.doc) {
+    syncCloud(msg.doc).then(function (merged) { sendResponse({ ok: true, doc: merged }); })
+      .catch(function (e) { console.warn('[MyPaperTrend] cloud sync', e); sendResponse({ ok: false, error: String(e) }); });
     return true;
-  } else if (msg.type === 'PULL_GITHUB') {
-    pullGithub(msg.scholarId).then(function (merged) { sendResponse({ ok: true, doc: merged }); })
-      .catch(function (e) { console.warn('[MyPaperTrend] github pull', e); sendResponse({ ok: false, error: String(e) }); });
+  } else if (msg.type === 'PULL_CLOUD') {
+    pullCloud(msg.scholarId).then(function (merged) { sendResponse({ ok: true, doc: merged }); })
+      .catch(function (e) { console.warn('[MyPaperTrend] cloud pull', e); sendResponse({ ok: false, error: String(e) }); });
     return true;
   } else if (msg.type === 'ENRICH') {
     enrich(msg.scholarId).then(function (n) { sendResponse({ ok: true, enriched: n }); })
@@ -109,31 +120,47 @@ function githubFor(s, id) {
   return MPT.storage.makeGithub(Object.assign({}, s.github, { path: pathForId(s.github.path, id) }));
 }
 
+/* Resolve the configured cloud StorageProvider for a scholar id (or null). */
+function cloudProvider(s, id) {
+  if (s.storage === 'github') {
+    if (!s.github.token || !s.github.owner || !s.github.repo) return Promise.resolve(null);
+    return Promise.resolve(githubFor(s, id));
+  }
+  if (s.storage === 'gdrive') {
+    return getGoogleToken(false).then(function (token) { return MPT.storage.makeGdrive(token, id); }).catch(function () { return null; });
+  }
+  return Promise.resolve(null);
+}
+
 /* Read-modify-write: merge remote + local, save merged to BOTH (never clobbers
    the seeded history with an empty/partial local store). Returns the merged doc. */
-function syncGithub(localDoc) {
+function syncCloud(localDoc) {
   return MPT.getSettings().then(function (s) {
     var id = localDoc && localDoc.profile && localDoc.profile.scholar_id;
-    if (s.storage !== 'github' || !s.github.token || !s.github.owner || !s.github.repo || !id) return null;
-    var gh = githubFor(s, id);
-    return gh.load().then(function (remote) {
-      var merged = MPT.mergeDocs(remote, localDoc);
-      return gh.save(merged)
-        .then(function () { return MPT.storage.local.saveFor(id, merged); })
-        .then(function () { return merged; });
+    if (s.storage === 'local' || !id) return null;
+    return cloudProvider(s, id).then(function (prov) {
+      if (!prov) return null;
+      return prov.load().then(function (remote) {
+        var merged = MPT.mergeDocs(remote, localDoc);
+        return prov.save(merged)
+          .then(function () { return MPT.storage.local.saveFor(id, merged); })
+          .then(function () { return merged; });
+      });
     });
   });
 }
 
 /* Pull remote and merge into local (used on first run / manual sync) for one profile. */
-function pullGithub(scholarId) {
+function pullCloud(scholarId) {
   return MPT.getSettings().then(function (s) {
     var id = scholarId || s.activeProfileId;
-    if (s.storage !== 'github' || !s.github.token || !s.github.owner || !s.github.repo || !id) return null;
-    var gh = githubFor(s, id);
-    return Promise.all([gh.load(), MPT.storage.local.loadFor(id)]).then(function (r) {
-      var merged = MPT.mergeDocs(r[0], r[1]);
-      return MPT.storage.local.saveFor(id, merged).then(function () { return merged; });
+    if (s.storage === 'local' || !id) return null;
+    return cloudProvider(s, id).then(function (prov) {
+      if (!prov) return null;
+      return Promise.all([prov.load(), MPT.storage.local.loadFor(id)]).then(function (r) {
+        var merged = MPT.mergeDocs(r[0], r[1]);
+        return MPT.storage.local.saveFor(id, merged).then(function () { return merged; });
+      });
     });
   });
 }
