@@ -13,6 +13,7 @@
     '#mpt-root .mpt-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8f9fb;border-bottom:1px solid #ecedf0}',
     '#mpt-root.collapsed .mpt-bar{border-bottom:0}',
     '#mpt-root .mpt-brand{font-size:14px;font-weight:700;flex:1;display:flex;align-items:center;gap:6px;letter-spacing:-.2px}',
+    '#mpt-root .mpt-logo{width:18px;height:18px;border-radius:5px;vertical-align:middle}',
     '#mpt-root .mpt-lang{display:flex;gap:2px;font-size:11px;font-weight:700}',
     '#mpt-root .mpt-lang span{cursor:pointer;padding:2px 6px;border-radius:5px;color:#80868b}',
     '#mpt-root .mpt-lang span.on{background:#e8f0fe;color:#1a73e8}',
@@ -72,6 +73,9 @@
   function fmt(n) { return (n >= 0 ? '+' : '') + n; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function T(k, v) { return MPT.t(k, v); }
+  var LOGO = '';
+  try { if (g.chrome && chrome.runtime && chrome.runtime.getURL) LOGO = chrome.runtime.getURL('icons/icon48.png'); } catch (e) {}
+  function brandTag() { return (LOGO ? '<img class="mpt-logo" src="' + LOGO + '" alt="">' : '📈 ') + T('brand'); }
 
   function langHTML() {
     var l = MPT.getLang();
@@ -79,6 +83,8 @@
       '<span data-lang="zh" class="' + (l === 'zh' ? 'on' : '') + '">中</span></div>';
   }
   function wireLang(root) {
+    var dn = root.querySelector('#mpt-donate');
+    if (dn) dn.onclick = function () { chrome.runtime.sendMessage({ type: 'OPEN', page: 'src/ui/donate.html' }); };
     root.querySelectorAll('.mpt-lang span').forEach(function (el) {
       el.onclick = function () {
         var l = el.getAttribute('data-lang');
@@ -106,11 +112,11 @@
       var root = mount(); root.className = '';
       root.innerHTML =
         '<div class="mpt-bar">' +
-          '<div class="mpt-brand">📈 ' + T('brand') + '</div>' + langHTML() +
+          '<div class="mpt-brand">' + brandTag() + '</div>' + langHTML() +
           '<div class="mpt-toggle" id="mpt-toggle"><span>' + T('track') + '</span><span class="mpt-sw"></span></div>' +
         '</div>' +
         '<div class="mpt-body"><div class="mpt-optin" style="padding:0">' + T('trackPrompt', { name: esc(info.name || T('thisScholar')) }) + '</div>' +
-        '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a></div></div>';
+        '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a> · <span id="mpt-donate" style="cursor:pointer;color:#1a73e8;font-weight:600">' + T('support') + '</span></div></div>';
       document.getElementById('mpt-toggle').onclick = function () { handlers.onToggle && handlers.onToggle(); };
       wireLang(root);
     },
@@ -130,7 +136,7 @@
 
       root.innerHTML =
         '<div class="mpt-bar">' +
-          '<div class="mpt-brand">📈 ' + T('brand') + '</div>' + langHTML() +
+          '<div class="mpt-brand">' + brandTag() + '</div>' + langHTML() +
           '<div class="mpt-toggle on" id="mpt-toggle" title="' + esc(T('tracking')) + '"><span>' + T('tracking') + '</span><span class="mpt-sw"></span></div>' +
           '<span class="mpt-chevron" id="mpt-chevron">▼</span>' +
         '</div>' +
@@ -151,7 +157,7 @@
             '<button class="mpt-btn" id="mpt-export">⬇ ' + T('exportJSON') + '</button>' +
             '<button class="mpt-btn" id="mpt-settings">⚙ ' + T('settings') + '</button>' +
           '</div>' +
-          '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a></div>' +
+          '<div class="mpt-credit">' + T('madeBy') + ' <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener">' + T('onGitHub') + '</a> · <span id="mpt-donate" style="cursor:pointer;color:#1a73e8;font-weight:600">' + T('support') + '</span></div>' +
         '</div>';
 
       if (g.Chart && model.dates.length) {

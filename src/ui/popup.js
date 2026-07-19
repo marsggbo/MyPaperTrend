@@ -9,6 +9,7 @@ function localizeStatic() {
   document.getElementById('export').textContent = '⬇ ' + T('exportData');
   document.getElementById('import').textContent = '⬆ ' + T('importData');
   document.getElementById('settings').textContent = '⚙ ' + T('settings');
+  document.getElementById('donate').textContent = T('support');
 }
 
 MPT.getSettings().then(function (s) { MPT.setLangValue(s.lang || MPT.detectLang()); localizeStatic(); render(); });
@@ -39,6 +40,7 @@ MPT.storage.local.load().then(function (doc) {
 
 document.getElementById('dash').onclick = function () { openPage('src/ui/dashboard.html'); };
 document.getElementById('settings').onclick = function () { openPage('src/ui/options.html'); };
+document.getElementById('donate').onclick = function () { openPage('src/ui/donate.html'); };
 document.getElementById('scholar').onclick = function () {
   MPT.storage.local.load().then(function (doc) {
     var id = doc && doc.profile && doc.profile.scholar_id;

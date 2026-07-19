@@ -59,5 +59,15 @@
     "scopes": [
       "https://www.googleapis.com/auth/drive.file"
     ]
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*.png"
+      ],
+      "matches": [
+        "https://scholar.google.com/*"
+      ]
+    }
+  ]
 }

@@ -3,6 +3,9 @@
 (function (g) {
   var MPT = (g.MPT = g.MPT || {});
   var charts = {};
+  var LOGO = '';
+  try { if (g.chrome && chrome.runtime && chrome.runtime.getURL) LOGO = chrome.runtime.getURL('icons/icon48.png'); } catch (e) {}
+  function logoImg(px) { return LOGO ? '<img src="' + LOGO + '" style="width:' + px + 'px;height:' + px + 'px;border-radius:3px;vertical-align:middle" alt="">' : '📈'; }
 
   var CSS = [
     '.mpt-inline-ico{display:inline-block;margin-left:8px;cursor:pointer;font-size:12px;opacity:.6;',
@@ -49,7 +52,7 @@
     var tr = document.createElement('tr');
     tr.className = 'mpt-detail'; tr.setAttribute('data-idx', idx);
     var td = document.createElement('td'); td.colSpan = 3;
-    td.innerHTML = '<div class="mpt-detail-in"><div class="mpt-detail-h">📈 ' + esc(MPT.t('citeHistory')) +
+    td.innerHTML = '<div class="mpt-detail-in"><div class="mpt-detail-h">' + logoImg(14) + ' ' + esc(MPT.t('citeHistory')) +
       ' · ' + paper.latest.toLocaleString() + ' ' + esc(MPT.t('citations').toLowerCase()) + '</div><canvas></canvas></div>';
     tr.appendChild(td);
     row.parentNode.insertBefore(tr, row.nextSibling);
@@ -78,7 +81,7 @@
         var idx = model.papers.indexOf(p);
         var ico = document.createElement('span');
         ico.className = 'mpt-inline-ico';
-        ico.textContent = '📈';
+        ico.innerHTML = logoImg(15);
         ico.title = MPT.t('citeHistory');
         ico.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); toggle(row, p, idx); });
         info.cell.appendChild(ico);

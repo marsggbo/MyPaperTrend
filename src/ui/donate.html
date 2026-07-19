@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Support MyPaperTrend</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e6e9ef;--accent:#1a73e8}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0f1e;--card:#111a2e;--text:#f1f5f9;--muted:#94a3b8;--border:#243149;--accent:#8ab4f8}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:grid;place-items:center;padding:2rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;max-width:560px;padding:2.2rem;box-shadow:0 12px 40px rgba(15,23,42,.1);text-align:center}
+h1{font-size:1.4rem;font-weight:800;margin-bottom:.5rem}
+.thanks{font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:1.6rem}
+.qrs{display:flex;gap:1.4rem;justify-content:center;flex-wrap:wrap}
+.qr{flex:1;min-width:180px;max-width:230px}
+.qr .box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:.7rem;aspect-ratio:1;display:grid;place-items:center;overflow:hidden}
+.qr img{width:100%;height:100%;object-fit:contain;border-radius:8px}
+.qr .missing{color:var(--muted);font-size:.85rem}
+.qr .label{margin-top:.6rem;font-size:.9rem;font-weight:700}
+.qr .wc{color:#09bb07}.qr .ap{color:#1677ff}
+.foot{margin-top:1.6rem;font-size:.78rem;color:var(--muted)}
+.foot a{color:var(--accent);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1 data-i18n="donateTitle">Support MyPaperTrend</h1>
+  <p class="thanks" data-i18n="donateThanks"></p>
+  <div class="qrs">
+    <div class="qr">
+      <div class="box"><img id="wcImg" src="donate/wechat.png" alt="WeChat"><span class="missing" style="display:none" data-i18n="qrMissing"></span></div>
+      <div class="label wc" data-i18n="wechat">WeChat Pay</div>
+    </div>
+    <div class="qr">
+      <div class="box"><img id="apImg" src="donate/alipay.png" alt="Alipay"><span class="missing" style="display:none" data-i18n="qrMissing"></span></div>
+      <div class="label ap" data-i18n="alipay">Alipay</div>
+    </div>
+  </div>
+  <div class="foot"><span data-i18n="madeBy">Made by</span> <a href="https://marsggbo.github.io/" target="_blank" rel="noopener">marsggbo</a> · <a href="https://github.com/marsggbo/MyPaperTrend" target="_blank" rel="noopener"><span data-i18n="onGitHub">on GitHub</span></a></div>
+</div>
+<script src="../core/i18n.js"></script>
+<script src="../core/schema.js"></script>
+<script src="../core/settings.js"></script>
+<script src="donate.js"></script>
+</body>
+</html>
