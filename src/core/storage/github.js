@@ -7,6 +7,28 @@
   function b64encodeUtf8(str) { return btoa(unescape(encodeURIComponent(str))); }
   function b64decodeUtf8(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, '')))); }
 
+  /* List scholar ids present in the repo (parsed from filenames matching the path template). */
+  MPT.storage.githubListIds = function (cfg) {
+    var tmpl = cfg.path || 'citations-{id}.json';
+    var slash = tmpl.lastIndexOf('/');
+    var dir = slash >= 0 ? tmpl.slice(0, slash) : '';
+    var fn = slash >= 0 ? tmpl.slice(slash + 1) : tmpl;
+    var esc = fn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{id\\}', '(.+)');
+    var re = new RegExp('^' + esc + '$');
+    var base = 'https://api.github.com/repos/' + cfg.owner + '/' + cfg.repo + '/contents/' +
+      (dir ? dir.split('/').map(encodeURIComponent).join('/') : '');
+    var headers = { 'Authorization': 'token ' + cfg.token, 'Accept': 'application/vnd.github+json' };
+    return fetch(base + '?ref=' + encodeURIComponent(cfg.branch || 'main'), { headers: headers }).then(function (r) {
+      if (r.status === 404) return [];
+      if (!r.ok) throw new Error('GitHub list ' + r.status);
+      return r.json();
+    }).then(function (arr) {
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(function (x) { return x.type === 'file'; })
+        .map(function (x) { var m = re.exec(x.name); return m ? m[1] : null; }).filter(Boolean);
+    });
+  };
+
   MPT.storage.makeGithub = function (cfg) {
     var base = 'https://api.github.com/repos/' + cfg.owner + '/' + cfg.repo +
       '/contents/' + cfg.path.split('/').map(encodeURIComponent).join('/');

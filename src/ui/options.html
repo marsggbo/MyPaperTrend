@@ -89,6 +89,11 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
     </div>
     <div class="acct-status" id="acctStatus"></div>
     <div class="acct-status" id="acctWhere" style="margin-top:.35rem;line-height:1.5"></div>
+    <div class="bar" style="margin-top:.7rem">
+      <button class="ghost" id="btnSync" style="display:none" data-i18n="syncNow">🔄 Sync now</button>
+      <span id="syncStatus" class="acct-status" style="margin:0"></span>
+    </div>
+    <div class="acct-status" id="syncHint" style="margin-top:.35rem"></div>
     <div id="ghAuthBox" class="hint" style="display:none;margin-top:.9rem"></div>
 
     <div id="ghBox" class="hidden" style="margin-top:.6rem">
