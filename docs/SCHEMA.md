@@ -19,9 +19,9 @@
 {
   "schema": 2,                          // 整数，必填；渲染层据此选解析路径
   "profile": {
-    "scholar_id": "LYNKm_8AAAAJ",       // 必填
+    "scholar_id": "AbCdEfGhIjK",       // 必填
     "name": "marsggbo",                 // 可选
-    "url": "https://scholar.google.com/citations?user=LYNKm_8AAAAJ",
+    "url": "https://scholar.google.com/citations?user=AbCdEfGhIjK",
     "metrics": {                        // 权威总量，取自 Scholar 指标框（分页也正确）
       "2026-07-19": { "citations": 3696, "hindex": 30, "i10": 55 }
     }
@@ -32,7 +32,7 @@
     // key = 论文标题（规范化后，见 §去重规则）
     "AutoML: A survey of the state-of-the-art": {
       "year": "2021",                   // 字符串，可空
-      "pub_id": "LYNKm_8AAAAJ:xxx",     // Scholar citation_for_view id，可空，用于去重/详情
+      "pub_id": "AbCdEfGhIjK:xxx",     // Scholar citation_for_view id，可空，用于去重/详情
       "first_seen": "2026-04-04",       // 首次被记录的日期 → 前端 NEW 徽章
       "history": {                      // 必填。date(YYYY-MM-DD) -> 引用总数(整数)
         "2026-04-04": 2630,
@@ -81,12 +81,12 @@ Normalizer 负责，把快照合并进 §① 的 `history`。
 ```jsonc
 // ProviderResult
 {
-  "scholar_id": "LYNKm_8AAAAJ",
+  "scholar_id": "AbCdEfGhIjK",
   "fetched_at": "2026-07-19T02:00:00Z",   // ISO8601
   "source": "dom",                        // dom|scraperapi|serpapi|proxy|llm
   "ok": true,
   "papers": [
-    { "title": "AutoML…", "citations": 2808, "year": "2021", "pub_id": "LYNKm_8AAAAJ:xxx" }
+    { "title": "AutoML…", "citations": 2808, "year": "2021", "pub_id": "AbCdEfGhIjK:xxx" }
   ]
 }
 // 失败时: { "ok": false, "error": "captcha" | "network" | "empty", "papers": [] }

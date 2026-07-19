@@ -70,7 +70,7 @@ Provider 不碰历史、不碰合并，只返回当天抓到的列表：
 ```jsonc
 // ProviderResult
 {
-  "scholar_id": "LYNKm_8AAAAJ",
+  "scholar_id": "AbCdEfGhIjK",
   "fetched_at": "2026-07-19T02:00:00Z",
   "source": "dom",                 // dom | scraperapi | serpapi | proxy | llm
   "papers": [
@@ -78,7 +78,7 @@ Provider 不碰历史、不碰合并，只返回当天抓到的列表：
       "title": "AutoML: A survey of the state-of-the-art",
       "citations": 2808,
       "year": "2021",
-      "pub_id": "LYNKm_8AAAAJ:xxx"  // Scholar citation_for_view id（可选，用于去重/详情链接）
+      "pub_id": "AbCdEfGhIjK:xxx"  // Scholar citation_for_view id（可选，用于去重/详情链接）
     }
   ]
 }
@@ -91,12 +91,12 @@ Provider 不碰历史、不碰合并，只返回当天抓到的列表：
 ```jsonc
 {
   "schema": 2,
-  "profile": { "scholar_id": "LYNKm_8AAAAJ", "name": "marsggbo" },
+  "profile": { "scholar_id": "AbCdEfGhIjK", "name": "Ada Lovelace" },
   "updated": "2026-07-19",
   "papers": {
     "AutoML: A survey of the state-of-the-art": {
       "year": "2021",
-      "pub_id": "LYNKm_8AAAAJ:xxx",
+      "pub_id": "AbCdEfGhIjK:xxx",
       "first_seen": "2026-04-04",
       "history": { "2026-04-04": 2630, "2026-07-19": 2808 },
       "meta": {                       // 由元数据 provider 补充（见 §6）
