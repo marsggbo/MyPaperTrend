@@ -73,7 +73,12 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
     <select id="storage" style="display:none">
       <option value="local">local</option><option value="github">github</option><option value="gdrive">gdrive</option>
     </select>
-    <div class="login-row">
+    <div class="bar" id="signedInRow" style="display:none">
+      <span id="acctStatus" class="acct-status" style="margin:0;flex:1"></span>
+      <button type="button" class="ghost" id="btnSwitch" data-i18n="switchAcct">Switch account</button>
+      <button type="button" class="ghost" id="btnSignout" data-i18n="signOut">Sign out</button>
+    </div>
+    <div class="login-row" id="loginButtons">
       <button type="button" class="login-btn" id="btnLocal" data-storage="local">
         <span class="lg"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm-2 14h20v2H2z"/></svg></span>
         <span data-i18n="storLocal">Local only</span>
@@ -87,8 +92,7 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
         <span data-i18n="storGoogle">Google Drive</span>
       </button>
     </div>
-    <div class="acct-status" id="acctStatus"></div>
-    <div class="acct-status" id="acctWhere" style="margin-top:.35rem;line-height:1.5"></div>
+    <div class="acct-status" id="acctWhere" style="margin-top:.6rem;line-height:1.5"></div>
     <div class="bar" style="margin-top:.7rem">
       <button class="ghost" id="btnSync" style="display:none" data-i18n="syncNow">🔄 Sync now</button>
       <span id="syncStatus" class="acct-status" style="margin:0"></span>

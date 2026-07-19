@@ -11,15 +11,28 @@
 
   function fileName(id) { return 'mypapertrend-' + id + '.json'; }
 
+  /* Resolve JSON, or throw with the API's error body (so 403 "API not enabled" is visible). */
+  function okJson(r, label) {
+    if (r.ok) return r.json();
+    return r.text().then(function (t) {
+      var msg = t;
+      try { msg = (JSON.parse(t).error || {}).message || t; } catch (e) {}
+      if (r.status === 403 && /has not been used|is disabled|accessNotConfigured/i.test(t)) {
+        msg = 'Google Drive API is not enabled for this project. Enable it at console.cloud.google.com → APIs & Services → Library → Google Drive API.';
+      }
+      throw new Error(label + ' ' + r.status + ': ' + String(msg).slice(0, 220));
+    });
+  }
+
   function ensureFolder(H) {
     if (folderCache) return Promise.resolve(folderCache);
     var q = "name='" + FOLDER + "' and mimeType='application/vnd.google-apps.folder' and trashed=false";
     return fetch(DRIVE + '/files?spaces=drive&fields=' + encodeURIComponent('files(id,name)') + '&q=' + encodeURIComponent(q), { headers: H })
-      .then(function (r) { if (!r.ok) throw new Error('Drive folder list ' + r.status); return r.json(); })
+      .then(function (r) { return okJson(r, 'Drive folder list'); })
       .then(function (j) {
         if (j.files && j.files[0]) { folderCache = j.files[0].id; return folderCache; }
         return fetch(DRIVE + '/files', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify({ name: FOLDER, mimeType: 'application/vnd.google-apps.folder' }) })
-          .then(function (r) { if (!r.ok) throw new Error('Drive folder create ' + r.status); return r.json(); })
+          .then(function (r) { return okJson(r, 'Drive folder create'); })
           .then(function (f) { folderCache = f.id; return folderCache; });
       });
   }

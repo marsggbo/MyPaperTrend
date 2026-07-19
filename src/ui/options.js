@@ -14,13 +14,16 @@ function applyLang() {
   renderTracked();
 }
 
-/* highlight the active storage button + status line */
+var switchMode = false;   // when signed in, temporarily reveal the login buttons to switch
+
+/* Collapse login buttons once signed in; show a summary with Switch / Sign out. */
 function refreshAccount() {
   MPT.getSettings().then(function (s) {
     ['btnLocal', 'btnGitHub', 'btnGoogle'].forEach(function (id) {
       $(id).classList.toggle('active', $(id).getAttribute('data-storage') === s.storage);
     });
-    var st = T('notSignedIn'), where = '';
+    var cloud = s.storage !== 'local';
+    var st = '', where = '';
     if (s.storage === 'github' && s.github.owner) {
       st = T('syncedGh', { repo: s.github.owner + '/' + s.github.repo });
       where = T('whereGh', { repo: s.github.owner + '/' + s.github.repo });
@@ -29,7 +32,8 @@ function refreshAccount() {
     }
     $('acctStatus').textContent = st;
     $('acctWhere').textContent = where;
-    var cloud = s.storage !== 'local';
+    $('loginButtons').style.display = (!cloud || switchMode) ? '' : 'none';
+    $('signedInRow').style.display = (cloud && !switchMode) ? 'flex' : 'none';
     $('btnSync').style.display = cloud ? '' : 'none';
     $('syncHint').textContent = cloud ? T('syncHint') : '';
     if (s.storage !== 'github') { $('ghAuthBox').style.display = 'none'; }
@@ -148,10 +152,12 @@ $('btnLocal').onclick = function () {
     return (wasGoogle ? MPT.googleAuth.signOut() : Promise.resolve()).then(function () {
       return MPT.patchSettings({ storage: 'local' });
     });
-  }).then(function () { $('storage').value = 'local'; toggleBoxes(); refreshAccount(); });
+  }).then(function () { switchMode = false; $('storage').value = 'local'; toggleBoxes(); refreshAccount(); });
 };
 
 $('btnSync').onclick = function () { doSyncAll(); };
+$('btnSwitch').onclick = function () { switchMode = true; refreshAccount(); };
+$('btnSignout').onclick = function () { switchMode = false; $('btnLocal').click(); };
 
 $('btnGitHub').onclick = function () {
   $('syncStatus').textContent = '';
@@ -170,7 +176,7 @@ $('btnGitHub').onclick = function () {
       $('ghAuthBox').innerHTML = '✅ ' + res.login + ' → ' + res.repo.owner + '/' + res.repo.repo;
       $('storage').value = 'github'; $('ghOwner').value = res.repo.owner; $('ghRepo').value = res.repo.repo;
       $('ghPath').value = 'citations-{id}.json'; $('ghBranch').value = 'main'; $('ghToken').value = res.token;
-      toggleBoxes(); refreshAccount();
+      switchMode = false; toggleBoxes(); refreshAccount();
       return doSyncAll();   // create/pull cloud files right away
     });
   }).catch(function (e) { $('ghAuthBox').innerHTML = '❌ ' + e.message; })
@@ -180,13 +186,13 @@ $('btnGitHub').onclick = function () {
 $('btnGoogle').onclick = function () {
   $('ghAuthBox').style.display = 'none'; $('ghAuthBox').innerHTML = '';
   $('btnGoogle').disabled = true;
-  $('acctStatus').textContent = 'Opening Google sign-in…';
+  $('syncStatus').textContent = 'Opening Google sign-in…';
   MPT.googleAuth.signIn().then(function () {
     return MPT.patchSettings({ storage: 'gdrive' });
   }).then(function () {
-    $('storage').value = 'gdrive'; toggleBoxes(); refreshAccount();
+    switchMode = false; $('storage').value = 'gdrive'; toggleBoxes(); refreshAccount();
     return doSyncAll();   // creates the MyPaperTrend Drive folder + files now
-  }).catch(function (e) { $('acctStatus').textContent = '❌ ' + e.message; })
+  }).catch(function (e) { $('syncStatus').textContent = '❌ ' + e.message; })
     .then(function () { $('btnGoogle').disabled = false; });
 };
 
