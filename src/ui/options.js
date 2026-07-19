@@ -44,7 +44,8 @@ function doSyncAll() {
   $('syncStatus').textContent = T('syncing');
   return new Promise(function (res) {
     chrome.runtime.sendMessage({ type: 'SYNC_ALL' }, function (resp) {
-      $('syncStatus').textContent = (resp && resp.ok) ? T('syncedCount', { n: resp.count }) : ('❌ ' + (resp && resp.error || 'sync failed'));
+      if (resp && resp.ok) $('syncStatus').textContent = T('syncedCount', { n: resp.written != null ? resp.written : resp.count });
+      else $('syncStatus').textContent = '❌ ' + ((resp && resp.error) || 'sync failed');
       renderTracked(); refreshAccount(); res();
     });
   });

@@ -97,8 +97,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       .catch(function (e) { console.warn('[MyPaperTrend] cloud pull', e); sendResponse({ ok: false, error: String(e) }); });
     return true;
   } else if (msg.type === 'SYNC_ALL') {
-    syncAll().then(function (r) { sendResponse({ ok: true, count: r.count }); })
-      .catch(function (e) { console.warn('[MyPaperTrend] sync-all', e); sendResponse({ ok: false, error: String(e) }); });
+    syncAll().then(function (r) { sendResponse({ ok: r.errors.length === 0, count: r.count, written: r.written, error: r.errors[0] }); })
+      .catch(function (e) { console.warn('[MyPaperTrend] sync-all', e); sendResponse({ ok: false, error: String(e && e.message || e) }); });
     return true;
   } else if (msg.type === 'CAPTURE_NOW' && msg.scholarId) {
     openAndCapture(msg.scholarId).then(function () { sendResponse({ ok: true }); })
@@ -170,24 +170,25 @@ function syncAll() {
       r[0].forEach(function (p) { ids[p.id] = 1; });
       (r[1] || []).forEach(function (id) { ids[id] = 1; });
       var list = Object.keys(ids);
+      var errors = [], written = 0;
       var chain = Promise.resolve();
       list.forEach(function (id) {
         chain = chain.then(function () {
           return cloudProvider(s, id).then(function (prov) {
-            if (!prov) return;
+            if (!prov) throw new Error('not signed in / no cloud provider');
             return Promise.all([prov.load(), MPT.storage.local.loadFor(id)]).then(function (rr) {
               var merged = MPT.mergeDocs(rr[0], rr[1]);
               if (merged && !merged.profile.scholar_id) merged.profile.scholar_id = id;
-              return prov.save(merged).then(function () { return MPT.storage.local.saveFor(id, merged); });
+              return prov.save(merged).then(function () { return MPT.storage.local.saveFor(id, merged); }).then(function () { written++; });
             });
-          }).catch(function (e) { console.warn('[MyPaperTrend] syncAll', id, e); });
+          }).catch(function (e) { console.warn('[MyPaperTrend] syncAll', id, e); errors.push(String(e && e.message || e)); });
         });
       });
       return chain.then(function () {
         return MPT.getSettings().then(function (s2) {
           var set = {}; s2.trackedIds.forEach(function (x) { set[x] = 1; }); list.forEach(function (x) { set[x] = 1; });
           return MPT.saveSettings(Object.assign({}, s2, { trackedIds: Object.keys(set) }));
-        }).then(function () { return { count: list.length }; });
+        }).then(function () { return { count: list.length, written: written, errors: errors }; });
       });
     });
   });

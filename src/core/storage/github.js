@@ -6,6 +6,7 @@
 
   function b64encodeUtf8(str) { return btoa(unescape(encodeURIComponent(str))); }
   function b64decodeUtf8(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, '')))); }
+  function ghMsg(t) { try { return JSON.parse(t).message || t; } catch (e) { return t; } }
 
   /* List scholar ids present in the repo (parsed from filenames matching the path template). */
   MPT.storage.githubListIds = function (cfg) {
@@ -42,7 +43,7 @@
     function getFile() {
       return fetch(base + '?ref=' + encodeURIComponent(branch), { headers: headers }).then(function (r) {
         if (r.status === 404) return null;
-        if (!r.ok) throw new Error('GitHub GET ' + r.status);
+        if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub GET ' + r.status + ': ' + ghMsg(t)); });
         return r.json();
       });
     }
@@ -64,7 +65,7 @@
           };
           if (f && f.sha) body.sha = f.sha;
           return fetch(base, { method: 'PUT', headers: headers, body: JSON.stringify(body) }).then(function (r) {
-            if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub PUT ' + r.status + ': ' + t); });
+            if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub PUT ' + r.status + ': ' + ghMsg(t)); });
           });
         });
       },
