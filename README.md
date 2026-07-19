@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="icons/icon128.png" width="88" alt="MyPaperTrend logo">
+<img src="assets/banner.png" width="560" alt="MyPaperTrend — by marsggbo">
 
 # MyPaperTrend
 
