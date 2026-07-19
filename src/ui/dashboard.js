@@ -181,6 +181,7 @@
       card('📚', 'Total Citations', total.toLocaleString(), fmt(todayNew) + ' latest', todayNew) +
       card('🔥', 'Latest New', fmt(todayNew), 'vs previous capture', todayNew) +
       card('📄', 'Papers Tracked', m.papers.length, m.newCount > 0 ? ('✨ ' + m.newCount + ' new') : (m.dates.length + ' days'), m.newCount) +
+      (m.hindex != null ? card('🏅', 'h-index', m.hindex, m.i10 != null ? ('i10: ' + m.i10) : '', 0) : '') +
       card('📈', '7-Day Avg', avg7.toFixed(1), 'all-time avg ' + avgAll.toFixed(1) + '/day', avg7);
     lineChart(document.getElementById('overallChart'), m.dates.map(function (d) { return d.slice(5); }), m.totals, m.dates, 240);
   }
@@ -190,17 +191,37 @@
       + '<div class="stat-value">' + value + '</div><div class="stat-change ' + cls + '">' + sub + '</div></div>';
   }
 
-  /* ── boot ── */
-  MPT.storage.local.load().then(function (doc) {
+  /* ── render one profile's doc ── */
+  function showDoc(doc) {
+    document.getElementById('milestonesSec').style.display = 'none';
     if (!doc || !Object.keys(doc.papers || {}).length) {
       document.getElementById('list').innerHTML = '<div class="empty">No data yet.<br>Open your <a href="https://scholar.google.com/citations" target="_blank">Google Scholar profile</a> and the trend panel will start recording your citations.</div>';
       document.getElementById('lastUpdated').textContent = 'No data yet';
+      document.getElementById('stats').innerHTML = '';
       return;
     }
     MODEL = MPT.buildRenderModel(doc);
     renderTop();
     renderMilestones();
     renderList();
+  }
+
+  /* ── boot ── */
+  Promise.all([MPT.storage.local.listProfiles(), MPT.getSettings()]).then(function (r) {
+    var profiles = r[0], settings = r[1];
+    var sel = document.getElementById('profileSel');
+    var current = settings.primaryScholarId || (profiles[0] && profiles[0].id) || '';
+
+    if (profiles.length > 1) {
+      sel.style.display = '';
+      sel.innerHTML = profiles.map(function (p) {
+        var label = (p.name || p.id) + (p.id === settings.primaryScholarId ? ' ⭐' : '') + ' · ' + p.papers + ' papers';
+        return '<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + label + '</option>';
+      }).join('');
+      sel.addEventListener('change', function () { MPT.storage.local.loadFor(sel.value).then(showDoc); });
+    }
+
+    // static controls
     wireList();
     document.getElementById('searchInput').addEventListener('input', renderList);
     document.querySelectorAll('.sort-btn').forEach(function (b) {
@@ -210,5 +231,7 @@
         b.classList.add('active'); renderList();
       });
     });
+
+    (current ? MPT.storage.local.loadFor(current) : MPT.storage.local.load()).then(showDoc);
   });
 })();

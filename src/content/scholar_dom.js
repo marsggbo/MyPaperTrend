@@ -14,6 +14,15 @@
     isProfilePage: function () {
       return !!MPT.dom.getScholarId() && !!document.getElementById('gsc_a_b');
     },
+    /* Authoritative profile totals from Scholar's own metrics box (#gsc_rsb_st).
+       Correct even when the publication list is paginated/collapsed. */
+    parseMetrics: function () {
+      var cells = document.querySelectorAll('#gsc_rsb_st .gsc_rsb_std');
+      if (!cells.length) return null;
+      var num = function (el) { return el ? (parseInt(el.textContent.replace(/[^0-9]/g, ''), 10) || 0) : 0; };
+      // order: [0]=Citations(All) [1]=Citations(Since) [2]=h(All) [3]=h(Since) [4]=i10(All) [5]=i10(Since)
+      return { citations: num(cells[0]), hindex: num(cells[2]), i10: num(cells[4]) };
+    },
     parseRows: function () {
       var rows = document.querySelectorAll('#gsc_a_b .gsc_a_tr');
       var out = [];
@@ -59,13 +68,16 @@
       }
       return step();
     },
-    /* A full snapshot of currently-loaded rows (call loadAll() first for completeness). */
+    /* A snapshot of currently-loaded rows + authoritative profile metrics.
+       Per-paper history only covers visible rows; the total comes from the metrics box. */
     snapshot: function () {
       return {
         scholar_id: MPT.dom.getScholarId(),
+        name: MPT.dom.getName(),
         fetched_at: new Date().toISOString(),
         source: 'dom',
         ok: true,
+        metrics: MPT.dom.parseMetrics(),
         papers: MPT.dom.parseRows()
       };
     }

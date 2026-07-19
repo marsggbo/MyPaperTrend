@@ -22,20 +22,44 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.type === 'OPEN' && msg.page) {
     chrome.tabs.create({ url: chrome.runtime.getURL(msg.page) });
   } else if (msg.type === 'SYNC_GITHUB' && msg.doc) {
-    syncGithub(msg.doc).then(function () { sendResponse({ ok: true }); })
+    syncGithub(msg.doc).then(function (merged) { sendResponse({ ok: true, doc: merged }); })
       .catch(function (e) { console.warn('[MyPaperTrend] github sync', e); sendResponse({ ok: false, error: String(e) }); });
     return true;
+  } else if (msg.type === 'PULL_GITHUB') {
+    pullGithub().then(function (merged) { sendResponse({ ok: true, doc: merged }); })
+      .catch(function (e) { console.warn('[MyPaperTrend] github pull', e); sendResponse({ ok: false, error: String(e) }); });
+    return true;
   } else if (msg.type === 'ENRICH') {
-    enrich().then(function (n) { sendResponse({ ok: true, enriched: n }); })
+    enrich(msg.scholarId).then(function (n) { sendResponse({ ok: true, enriched: n }); })
       .catch(function (e) { console.warn('[MyPaperTrend] enrich', e); sendResponse({ ok: false, error: String(e) }); });
     return true;
   }
 });
 
-function syncGithub(doc) {
+/* Read-modify-write: merge remote + local, save merged to BOTH (never clobbers
+   the seeded history with an empty/partial local store). Returns the merged doc. */
+function syncGithub(localDoc) {
   return MPT.getSettings().then(function (s) {
-    if (s.storage !== 'github' || !s.github.token || !s.github.owner || !s.github.repo) return;
-    return MPT.storage.makeGithub(s.github).save(doc);
+    if (s.storage !== 'github' || !s.github.token || !s.github.owner || !s.github.repo) return null;
+    var gh = MPT.storage.makeGithub(s.github);
+    return gh.load().then(function (remote) {
+      var merged = MPT.mergeDocs(remote, localDoc);
+      return gh.save(merged)
+        .then(function () { return MPT.storage.local.save(merged); })
+        .then(function () { return merged; });
+    });
+  });
+}
+
+/* Pull remote and merge into local (used on first run / manual sync). */
+function pullGithub() {
+  return MPT.getSettings().then(function (s) {
+    if (s.storage !== 'github' || !s.github.token || !s.github.owner || !s.github.repo) return null;
+    var gh = MPT.storage.makeGithub(s.github);
+    return Promise.all([gh.load(), MPT.storage.local.load()]).then(function (r) {
+      var merged = MPT.mergeDocs(r[0], r[1]);
+      return MPT.storage.local.save(merged).then(function () { return merged; });
+    });
   });
 }
 
@@ -67,13 +91,15 @@ function s2Match(title) {
   });
 }
 
-function enrich() {
-  return chrome.storage.local.get('mpt_last_enrich').then(function (o) {
+function enrich(scholarId) {
+  var throttleKey = 'mpt_last_enrich__' + (scholarId || 'primary');
+  return chrome.storage.local.get(throttleKey).then(function (o) {
     var now = Date.now();
-    if (o.mpt_last_enrich && now - o.mpt_last_enrich < ENRICH_MIN_INTERVAL) return 0;
+    if (o[throttleKey] && now - o[throttleKey] < ENRICH_MIN_INTERVAL) return 0;
     return MPT.getSettings().then(function (s) {
       if (!s.enrich) return 0;
-      return MPT.storage.local.load().then(function (doc) {
+      var loader = scholarId ? MPT.storage.local.loadFor(scholarId) : MPT.storage.local.load();
+      return loader.then(function (doc) {
         if (!doc) return 0;
         var today = MPT.todayStr();
         var todo = Object.keys(doc.papers).filter(function (t) {
@@ -82,7 +108,7 @@ function enrich() {
           if (m._tried && MPT.daysBetween(m._tried, today) < 14) return false;
           return true;
         }).slice(0, ENRICH_MAX_PER_RUN);
-        if (!todo.length) { return chrome.storage.local.set({ mpt_last_enrich: now }).then(function () { return 0; }); }
+        if (!todo.length) { var z = {}; z[throttleKey] = now; return chrome.storage.local.set(z).then(function () { return 0; }); }
 
         var count = 0;
         var chain = Promise.resolve();
@@ -97,8 +123,9 @@ function enrich() {
           });
         });
         return chain.then(function () {
+          var z = {}; z[throttleKey] = now;
           return MPT.storage.local.save(doc)
-            .then(function () { return chrome.storage.local.set({ mpt_last_enrich: now }); })
+            .then(function () { return chrome.storage.local.set(z); })
             .then(function () { return count; });
         });
       });

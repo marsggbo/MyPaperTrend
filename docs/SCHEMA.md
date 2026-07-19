@@ -21,7 +21,10 @@
   "profile": {
     "scholar_id": "LYNKm_8AAAAJ",       // 必填
     "name": "marsggbo",                 // 可选
-    "url": "https://scholar.google.com/citations?user=LYNKm_8AAAAJ"
+    "url": "https://scholar.google.com/citations?user=LYNKm_8AAAAJ",
+    "metrics": {                        // 权威总量，取自 Scholar 指标框（分页也正确）
+      "2026-07-19": { "citations": 3696, "hindex": 30, "i10": 55 }
+    }
   },
   "updated": "2026-07-19",              // 最近一次写入日期 (YYYY-MM-DD, 本地时区)
   "source": "dom",                      // 最近一次取数来源: dom|scraperapi|serpapi|proxy|llm
@@ -56,6 +59,11 @@
 - `citations` 一律非负整数；解析不到记 `0`，不得写 `null`。
 - `first_seen` 一经写入不再更改。
 - 删除论文要保守：Scholar 偶尔漏掉某篇 ≠ 论文消失，**不因单次抓取缺失就删历史**。
+- **总量口径**：全站总引用取 `profile.metrics`（Scholar 指标框），**分页/折叠时也正确**；
+  仅当某日期早于任何 metrics 记录时，才回退用各论文 last-known 之和。
+- **每篇论文只更新当前页面可见的**：不可见的论文保留历史、当天不更新（增量语义）。
+- **多档隔离**：每个 Scholar profile 存成独立文档，本地键 `mpt_doc__<scholar_id>`；
+  GitHub 同步只作用于用户的 primary profile —— 不同人的数据永不混在一起。
 
 ### 去重规则（key 的规范化）
 

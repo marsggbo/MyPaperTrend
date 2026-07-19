@@ -34,8 +34,15 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
   <h1>⚙ MyPaperTrend Settings</h1>
 
   <div class="card">
+    <h2>Profile</h2>
+    <div class="hint">Your <b>primary</b> Scholar profile is tracked automatically; other profiles you visit are only tracked if you opt in — so different people's data never mix. This is set automatically the first time you open your own profile, but you can change it here.</div>
+    <label for="primaryId">Primary Scholar ID (the <code>user=</code> value in your profile URL)</label>
+    <input type="text" id="primaryId" placeholder="LYNKm_8AAAAJ">
+  </div>
+
+  <div class="card">
     <h2>Storage</h2>
-    <div class="hint">By default your data lives <b>locally in this browser</b> (no account needed). Optionally mirror it to a GitHub repo for backup, cross-device sync, or to feed a public dashboard.</div>
+    <div class="hint">By default your data lives <b>locally in this browser</b> (no account needed). Optionally mirror it to a GitHub repo for backup, cross-device sync, or to feed a public dashboard. GitHub sync applies to your primary profile only.</div>
     <label for="storage">Where to store history</label>
     <select id="storage">
       <option value="local">Local only (default)</option>

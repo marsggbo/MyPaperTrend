@@ -8,6 +8,7 @@ function toggleBoxes() {
 }
 
 MPT.getSettings().then(function (s) {
+  $('primaryId').value = s.primaryScholarId || '';
   $('storage').value = s.storage;
   $('ghOwner').value = s.github.owner;
   $('ghRepo').value = s.github.repo;
@@ -26,6 +27,7 @@ $('fetch').onchange = toggleBoxes;
 
 $('save').onclick = function () {
   var s = {
+    primaryScholarId: $('primaryId').value.trim(),
     storage: $('storage').value,
     github: {
       owner: $('ghOwner').value.trim(), repo: $('ghRepo').value.trim(),

@@ -7,7 +7,13 @@
     doc = MPT.migrate(doc) || MPT.emptyDoc();
     var today = MPT.todayStr();
     if (result.scholar_id) doc.profile.scholar_id = doc.profile.scholar_id || result.scholar_id;
+    if (result.name && !doc.profile.name) doc.profile.name = result.name;
     doc.source = result.source || doc.source;
+    // authoritative profile totals (correct even when the paper list is paginated)
+    if (result.metrics && Number.isFinite(result.metrics.citations) && result.metrics.citations > 0) {
+      doc.profile.metrics = doc.profile.metrics || {};
+      doc.profile.metrics[today] = result.metrics;
+    }
     (result.papers || []).forEach(function (p) {
       var title = (p.title || '').trim();
       if (!title) return;
@@ -34,16 +40,56 @@
       .filter(function (t) { return t && !existing[t]; });
   };
 
+  /* Union two docs (histories, first_seen=min, richer meta wins). Non-destructive:
+     used to reconcile a local store with a remote (GitHub) store before writing. */
+  MPT.mergeDocs = function (a, b) {
+    a = MPT.migrate(a); b = MPT.migrate(b);
+    if (!a) return b || MPT.emptyDoc();
+    if (!b) return a;
+    var out = MPT.emptyDoc();
+    var baseProfile = a.profile && a.profile.scholar_id ? a.profile : b.profile || out.profile;
+    out.profile = Object.assign({}, baseProfile);
+    out.profile.metrics = Object.assign({}, (b.profile && b.profile.metrics) || {}, (a.profile && a.profile.metrics) || {});
+    out.updated = (a.updated || '') > (b.updated || '') ? a.updated : b.updated;
+    out.source = a.updated >= b.updated ? (a.source || b.source) : (b.source || a.source);
+    var titles = {};
+    Object.keys(a.papers || {}).forEach(function (t) { titles[t] = 1; });
+    Object.keys(b.papers || {}).forEach(function (t) { titles[t] = 1; });
+    Object.keys(titles).forEach(function (t) {
+      var pa = (a.papers || {})[t], pb = (b.papers || {})[t];
+      if (!pa) { out.papers[t] = pb; return; }
+      if (!pb) { out.papers[t] = pa; return; }
+      var history = Object.assign({}, pa.history || {}, pb.history || {});
+      var fa = pa.first_seen || '', fb = pb.first_seen || '';
+      var first_seen = fa && fb ? (fa < fb ? fa : fb) : (fa || fb);
+      var metaA = pa.meta || {}, metaB = pb.meta || {};
+      var richA = metaA.tldr || metaA.abstract, richB = metaB.tldr || metaB.abstract;
+      var meta = richB && !richA ? metaB : richA ? metaA : Object.assign({}, metaB, metaA);
+      out.papers[t] = {
+        year: pa.year || pb.year || '',
+        pub_id: pa.pub_id || pb.pub_id || '',
+        first_seen: first_seen,
+        history: history,
+        meta: meta
+      };
+    });
+    return out;
+  };
+
   /* Build the RenderModel that all views consume (see docs/SCHEMA.md §4). */
   MPT.buildRenderModel = function (doc) {
     doc = MPT.migrate(doc) || MPT.emptyDoc();
     var papersObj = doc.papers || {};
     var titles = Object.keys(papersObj);
 
+    var metrics = (doc.profile && doc.profile.metrics) || {};
+    var metricDates = Object.keys(metrics).sort();
+
     var dateSet = {};
     titles.forEach(function (t) {
       Object.keys(papersObj[t].history || {}).forEach(function (d) { dateSet[d] = 1; });
     });
+    metricDates.forEach(function (d) { dateSet[d] = 1; });
     var dates = Object.keys(dateSet).sort();
     var maxDate = dates[dates.length - 1] || '';
     var firstDate = dates[0] || '';
@@ -53,9 +99,13 @@
       return Object.keys(h).sort().map(function (d) { return { date: d, citations: h[d] }; });
     });
 
-    /* daily totals via last-known count per paper (pointer sweep) */
-    var acc = {};
+    /* Total per date: prefer the authoritative Scholar metric (correct under pagination);
+       before any metric was recorded, fall back to the sum of per-paper last-known counts. */
+    var acc = {}, mi = 0;
     var totals = dates.map(function (date) {
+      while (mi < metricDates.length - 1 && metricDates[mi + 1] <= date) mi++;
+      var haveMetric = metricDates.length && metricDates[mi] <= date;
+      if (haveMetric) return metrics[metricDates[mi]].citations;
       var sum = 0;
       histArr.forEach(function (hs, i) {
         var lo = acc[i] || 0;
@@ -65,6 +115,7 @@
       return sum;
     });
     var totalDeltas = totals.map(function (v, i) { return i === 0 ? 0 : v - totals[i - 1]; });
+    var latestMetric = metricDates.length ? metrics[metricDates[metricDates.length - 1]] : null;
 
     var papers = [];
     var newCount = 0;
@@ -89,7 +140,10 @@
     return {
       profile: { scholarId: doc.profile.scholar_id || '', name: doc.profile.name || '' },
       dates: dates, totals: totals, totalDeltas: totalDeltas,
-      papers: papers, updated: doc.updated || maxDate, newCount: newCount
+      papers: papers, updated: doc.updated || maxDate, newCount: newCount,
+      hindex: latestMetric ? latestMetric.hindex : null,
+      i10: latestMetric ? latestMetric.i10 : null,
+      hasMetrics: metricDates.length > 0
     };
   };
 })(typeof globalThis !== 'undefined' ? globalThis : self);

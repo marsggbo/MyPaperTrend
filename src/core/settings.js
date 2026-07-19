@@ -8,6 +8,7 @@
     github: { token: '', owner: '', repo: '', path: 'citations.json', branch: 'main' },
     fetch: { provider: 'dom', scraperapi_key: '', serpapi_key: '' },
     enrich: true,                     // pull authors/abstract/links from Semantic Scholar
+    primaryScholarId: '',             // the user's own profile (auto-tracked; others are opt-in)
     onboarded: false
   };
 
@@ -20,8 +21,16 @@
         github: Object.assign({}, d.github, s.github || {}),
         fetch: Object.assign({}, d.fetch, s.fetch || {}),
         enrich: s.enrich !== undefined ? s.enrich : d.enrich,
+        primaryScholarId: s.primaryScholarId || '',
         onboarded: !!s.onboarded
       };
+    });
+  };
+
+  /* update a subset of settings without clobbering the rest */
+  MPT.patchSettings = function (patch) {
+    return MPT.getSettings().then(function (s) {
+      return MPT.saveSettings(Object.assign({}, s, patch));
     });
   };
 

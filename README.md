@@ -15,9 +15,16 @@ it makes *no extra network request*, so there is nothing for Google's anti-bot t
 ## Features
 
 - 📊 **Trend overlay** on your Scholar profile: total-citations chart with a hover crosshair
-  showing **date · total citations · daily new** for every point.
+  showing **date · total citations · daily new**, plus a **click-to-expand per-paper** list
+  (each paper opens its own trend chart, one at a time).
+- 🎯 **Pagination-proof total**: the overall number is read from Scholar's own metrics box
+  (Citations / h-index / i10), so it's correct even when the paper list is paginated. Per-paper
+  history updates for whatever papers are shown — click *Capture all pages* to include the rest.
+- 👤 **Multi-profile safe**: your own profile is tracked automatically; visiting someone else's
+  profile shows an opt-in prompt and stores nothing unless you choose to track it — different
+  people's data never mix (each profile is a separate document).
 - 🗂 **Full dashboard** (click *Full dashboard*): stat cards, all-time trend, recent
-  milestones, per-paper trend charts, search & sort, **NEW** badges for freshly added papers.
+  milestones, per-paper trend charts, search & sort, **NEW** badges, profile switcher.
 - 💡 **Auto metadata**: authors, venue, a one-line **TL;DR**, abstract and
   arXiv/DOI/PDF links (via the free Semantic Scholar API).
 - 💾 **Local-first**: history lives in your browser (`chrome.storage.local`). Export/import
