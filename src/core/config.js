@@ -11,5 +11,5 @@
   // GOOGLE_WEB_CLIENT_ID = "Web application" client for launchWebAuthFlow (Edge & other Chromium).
   // Create one in the same GCP project with redirect URI:
   //   https://ehfjnfggcbejkjcfdnbiegabjheabfho.chromiumapp.org/
-  MPT.GOOGLE_WEB_CLIENT_ID = '';
+  MPT.GOOGLE_WEB_CLIENT_ID = '490407427089-7scli42tbit7cgo91t2vg7ejju5m0ml4.apps.googleusercontent.com';
 })(typeof globalThis !== 'undefined' ? globalThis : self);
