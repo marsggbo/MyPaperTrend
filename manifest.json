@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "MyPaperTrend",
+  "version": "0.1.0",
+  "description": "Track your Google Scholar citations over time and overlay the trend chart right on your Scholar profile. Zero-config, local-first.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "https://scholar.google.com/*",
+    "https://api.github.com/*",
+    "https://api.semanticscholar.org/*"
+  ],
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+  "action": {
+    "default_popup": "src/ui/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "src/ui/options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://scholar.google.com/citations*"],
+      "js": [
+        "src/vendor/chart.umd.min.js",
+        "src/core/schema.js",
+        "src/core/normalizer.js",
+        "src/core/settings.js",
+        "src/core/storage/local.js",
+        "src/content/scholar_dom.js",
+        "src/content/overlay.js",
+        "src/content/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

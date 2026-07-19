@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyPaperTrend — Dashboard</title>
+<style>
+:root{
+  --bg:#f5f6f8;--surface:#fff;--surface2:#f7f9fc;
+  --text:#0f172a;--text2:#64748b;--text3:#94a3b8;--border:#e6e9ef;
+  --accent:#6366f1;--accent2:#818cf8;--accentSoft:rgba(99,102,241,.10);
+  --green:#10b981;--red:#ef4444;--r:14px;
+  --sh:0 1px 2px rgba(15,23,42,.04),0 1px 3px rgba(15,23,42,.06);
+  --shm:0 2px 8px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.05);
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0a0f1e;--surface:#111a2e;--surface2:#0d1526;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--border:#243149;
+  --accent:#818cf8;--accent2:#a5b4fc;--accentSoft:rgba(129,140,248,.14);
+  --sh:0 1px 3px rgba(0,0,0,.4);--shm:0 4px 20px rgba(0,0,0,.45);
+}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",Roboto,sans-serif;background:var(--bg);color:var(--text);padding:1.25rem;min-height:100vh}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:1.1rem}
+.header{position:relative;overflow:hidden;background:linear-gradient(135deg,#6366f1,#7c73f0 45%,#8b5cf6);border-radius:18px;padding:2rem;color:#fff;box-shadow:0 12px 34px rgba(99,102,241,.32)}
+.header h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem}
+.header p{margin-top:.45rem;opacity:.9;font-size:.85rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.9rem}
+.stat-card{background:var(--surface);border-radius:var(--r);padding:1.1rem 1.2rem;box-shadow:var(--sh);border:1px solid var(--border)}
+.stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem}
+.stat-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);font-weight:600}
+.stat-ico{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:.85rem;background:var(--accentSoft)}
+.stat-value{font-size:1.8rem;font-weight:800;line-height:1.05;letter-spacing:-.5px}
+.stat-change{font-size:.74rem;margin-top:.3rem;color:var(--text2)}
+.stat-change.up{color:var(--green)}.stat-change.down{color:var(--red)}
+.section{background:var(--surface);border-radius:var(--r);padding:1.4rem 1.5rem;box-shadow:var(--sh);border:1px solid var(--border)}
+.section-title{font-size:.95rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.45rem}
+.chart-wrap{height:240px}
+.controls{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
+.search-box{flex:1;min-width:180px;padding:.5rem .8rem;border:1px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-size:.85rem;outline:none}
+.search-box:focus{border-color:var(--accent)}
+.sort-btn{padding:.42rem .8rem;border:1px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text2);font-size:.78rem;cursor:pointer;font-weight:600}
+.sort-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sort-label{font-size:.75rem;color:var(--text3)}
+.milestones{display:flex;flex-direction:column;gap:.5rem}
+.ms-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:10px;background:var(--surface2);border:1px solid var(--border)}
+.ms-badge{font-size:.72rem;font-weight:800;padding:.22rem .55rem;border-radius:8px;color:#fff;background:linear-gradient(135deg,#f59e0b,#f97316);flex-shrink:0;white-space:nowrap}
+.ms-title{flex:1;min-width:0;font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-date{font-size:.72rem;color:var(--text3)}
+.paper{border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:.6rem}
+.paper:hover{box-shadow:var(--sh);border-color:var(--accent2)}
+.paper-head{padding:.75rem .95rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;background:var(--surface2)}
+.paper-head:hover{background:var(--accentSoft)}
+.rank{font-size:.8rem;font-weight:700;color:var(--text3);width:1.5rem;text-align:center;flex-shrink:0}
+.rank.medal{font-size:1.05rem}
+.paper-info{flex:1;min-width:0}
+.paper-title{font-weight:600;font-size:.88rem;line-height:1.4;display:flex;align-items:center;gap:.4rem}
+.paper-title span.tt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paper-meta{font-size:.72rem;color:var(--text2);margin-top:2px;display:flex;gap:.7rem;flex-wrap:wrap}
+.tag-new{font-size:.6rem;font-weight:800;letter-spacing:.04em;padding:.1rem .38rem;border-radius:5px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;flex-shrink:0;text-transform:uppercase}
+.paper-stats{display:flex;align-items:center;gap:.45rem;flex-shrink:0}
+.cites-num{font-weight:800;color:var(--accent);font-size:1.05rem;min-width:2.6rem;text-align:right}
+.badge{font-size:.68rem;padding:.13rem .42rem;border-radius:999px;font-weight:700;min-width:2.3rem;text-align:center}
+.badge.up{background:rgba(16,185,129,.15);color:var(--green)}.badge.down{background:rgba(239,68,68,.12);color:var(--red)}.badge.flat{background:var(--border);color:var(--text2)}
+.arrow{color:var(--text3);font-size:.65rem;transition:transform .25s}
+.paper.open .arrow{transform:rotate(180deg)}
+.paper-chart{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.paper.open .paper-chart{max-height:1600px}
+.paper-chart-inner{padding:1rem 1.1rem;background:var(--surface);border-top:1px solid var(--border)}
+.pd-tldr{font-size:.82rem;line-height:1.55;background:var(--accentSoft);border-left:3px solid var(--accent);border-radius:8px;padding:.55rem .75rem;margin-bottom:.7rem}
+.pd-tldr b{color:var(--accent)}
+.pd-authors{font-size:.78rem;color:var(--text2);margin-bottom:.6rem}
+.pd-links{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem}
+.pd-link{font-size:.74rem;font-weight:600;padding:.3rem .6rem;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.pd-link:hover{border-color:var(--accent);color:var(--accent)}
+.pd-abstract{font-size:.78rem;line-height:1.6;color:var(--text2);margin-bottom:.4rem}
+.pd-abstract.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pd-more{font-size:.74rem;color:var(--accent);cursor:pointer;font-weight:600;margin-bottom:.7rem;display:inline-block}
+.pd-nometa{font-size:.76rem;color:var(--text3);margin-bottom:.6rem}
+.pd-chart{height:230px;margin-top:.3rem}
+.footer{text-align:center;padding:.6rem;color:var(--text3);font-size:.75rem}
+.loading{text-align:center;padding:3rem;color:var(--text2)}
+.empty{text-align:center;padding:2.5rem;color:var(--text2);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📊 MyPaperTrend</h1>
+    <p id="lastUpdated">Loading…</p>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="section">
+    <div class="section-title">📈 Total Citations — All-Time Trend</div>
+    <div class="chart-wrap"><canvas id="overallChart"></canvas></div>
+  </div>
+  <div class="section" id="milestonesSec" style="display:none">
+    <div class="section-title">🎉 Recent Milestones</div>
+    <div id="milestones" class="milestones"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">📄 Papers</div>
+    <div class="controls">
+      <input class="search-box" id="searchInput" type="text" placeholder="🔍 Search papers…">
+      <span class="sort-label">Sort:</span>
+      <button class="sort-btn active" data-sort="cites">Citations</button>
+      <button class="sort-btn" data-sort="growth">Growth</button>
+      <button class="sort-btn" data-sort="year">Year</button>
+      <button class="sort-btn" data-sort="new">Newest</button>
+    </div>
+    <div id="list"><div class="loading">⏳ Loading…</div></div>
+  </div>
+  <div class="footer">Data stored locally in your browser · MyPaperTrend</div>
+</div>
+
+<script src="../vendor/chart.umd.min.js"></script>
+<script src="../core/schema.js"></script>
+<script src="../core/normalizer.js"></script>
+<script src="../core/settings.js"></script>
+<script src="../core/storage/local.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

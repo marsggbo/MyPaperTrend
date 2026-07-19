@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Welcome to MyPaperTrend</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e6e9ef;--accent:#6366f1}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0f1e;--card:#111a2e;--text:#f1f5f9;--muted:#94a3b8;--border:#243149;--accent:#818cf8}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:grid;place-items:center;padding:2rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;max-width:560px;padding:2.4rem 2.4rem 2rem;box-shadow:0 12px 40px rgba(15,23,42,.1)}
+.hero{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:14px;padding:1.4rem 1.6rem;margin-bottom:1.6rem}
+.hero h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px}
+.hero p{opacity:.9;margin-top:.35rem;font-size:.9rem}
+.steps{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.6rem}
+.step{display:flex;gap:.9rem;align-items:flex-start}
+.step .ico{width:34px;height:34px;border-radius:10px;background:rgba(99,102,241,.14);display:grid;place-items:center;flex-shrink:0;font-size:1.05rem}
+.step .t{font-weight:700;font-size:.95rem}
+.step .d{font-size:.85rem;color:var(--muted);line-height:1.5;margin-top:2px}
+.privacy{font-size:.82rem;color:var(--muted);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:.8rem 1rem;line-height:1.55;margin-bottom:1.6rem}
+.actions{display:flex;gap:.7rem;flex-wrap:wrap}
+button{font:inherit;font-weight:700;padding:.7rem 1.3rem;border-radius:10px;cursor:pointer;border:1px solid var(--border)}
+.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.ghost{background:transparent;color:var(--text)}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="hero">
+    <h1>📈 Welcome to MyPaperTrend</h1>
+    <p>Your Google Scholar citations, tracked over time — right on your profile.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="ico">1️⃣</div><div><div class="t">Open your Google Scholar profile</div><div class="d">Go to <a href="https://scholar.google.com/citations" target="_blank">scholar.google.com/citations</a>. A trend panel appears automatically at the top of the page.</div></div></div>
+    <div class="step"><div class="ico">2️⃣</div><div><div class="t">It reads the page directly — no scraping API, no login</div><div class="d">MyPaperTrend reads the citation numbers already on your screen. Nothing is scraped from a server, so Google never blocks it.</div></div></div>
+    <div class="step"><div class="ico">3️⃣</div><div><div class="t">Come back any time</div><div class="d">Each visit records that day’s numbers and builds your citation trend, with per-point details on hover. Click “Capture all pages” to include every paper (and newly added ones).</div></div></div>
+  </div>
+
+  <div class="privacy">🔒 <b>Your data stays on your device.</b> History is stored locally in your browser — no account required. You can export it any time, or optionally connect Google Drive / a GitHub repo in Advanced settings.</div>
+
+  <div class="actions">
+    <button class="primary" id="start">Get started</button>
+    <button class="ghost" id="advanced">Advanced settings</button>
+  </div>
+</div>
+
+<script src="../core/schema.js"></script>
+<script src="../core/settings.js"></script>
+<script src="onboarding.js"></script>
+</body>
+</html>

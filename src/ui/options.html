@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyPaperTrend — Settings</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e6e9ef;--accent:#6366f1;--field:#f7f9fc}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0f1e;--card:#111a2e;--text:#f1f5f9;--muted:#94a3b8;--border:#243149;--accent:#818cf8;--field:#0d1526}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding:2rem;display:grid;place-items:start center}
+.wrap{max-width:620px;width:100%;display:flex;flex-direction:column;gap:1.2rem}
+h1{font-size:1.4rem;font-weight:800;display:flex;align-items:center;gap:.5rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.4rem}
+.card h2{font-size:1rem;font-weight:700;margin-bottom:.4rem}
+.hint{font-size:.82rem;color:var(--muted);line-height:1.55;margin-bottom:1rem}
+label{display:block;font-size:.82rem;font-weight:600;margin:.7rem 0 .3rem}
+input[type=text],input[type=password],select{width:100%;padding:.55rem .7rem;border:1px solid var(--border);border-radius:9px;background:var(--field);color:var(--text);font:inherit;font-size:.85rem;outline:none}
+input:focus,select:focus{border-color:var(--accent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.check{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.85rem}
+.hidden{display:none}
+.bar{display:flex;gap:.7rem;align-items:center}
+button{font:inherit;font-weight:700;padding:.65rem 1.2rem;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--text);border-color:var(--border)}
+.saved{font-size:.85rem;color:#10b981;opacity:0;transition:opacity .2s}
+.saved.show{opacity:1}
+a{color:var(--accent)}
+code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚙ MyPaperTrend Settings</h1>
+
+  <div class="card">
+    <h2>Storage</h2>
+    <div class="hint">By default your data lives <b>locally in this browser</b> (no account needed). Optionally mirror it to a GitHub repo for backup, cross-device sync, or to feed a public dashboard.</div>
+    <label for="storage">Where to store history</label>
+    <select id="storage">
+      <option value="local">Local only (default)</option>
+      <option value="github">Local + GitHub repo</option>
+    </select>
+
+    <div id="ghBox" class="hidden">
+      <div class="row">
+        <div><label for="ghOwner">GitHub owner</label><input type="text" id="ghOwner" placeholder="your-username"></div>
+        <div><label for="ghRepo">Repo name</label><input type="text" id="ghRepo" placeholder="citation-tracker"></div>
+      </div>
+      <div class="row">
+        <div><label for="ghPath">File path</label><input type="text" id="ghPath" placeholder="citations.json"></div>
+        <div><label for="ghBranch">Branch</label><input type="text" id="ghBranch" placeholder="main"></div>
+      </div>
+      <label for="ghToken">Fine-grained token (Contents: Read/Write on that repo)</label>
+      <input type="password" id="ghToken" placeholder="github_pat_…">
+      <div class="hint" style="margin-top:.5rem">Stored only in this browser. Never commit tokens into a repo.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Data source (advanced)</h2>
+    <div class="hint">Default is reading your Scholar page directly — free and never blocked. You can add a paid API as a fallback (e.g. for background updates).</div>
+    <label for="fetch">Fetch provider</label>
+    <select id="fetch">
+      <option value="dom">Browser DOM (default)</option>
+      <option value="scraperapi">ScraperAPI (bring your own key)</option>
+      <option value="serpapi">SerpApi (bring your own key)</option>
+    </select>
+    <div id="scraperBox" class="hidden"><label for="scraperKey">ScraperAPI key</label><input type="password" id="scraperKey"></div>
+    <div id="serpBox" class="hidden"><label for="serpKey">SerpApi key</label><input type="password" id="serpKey"></div>
+    <div class="check"><input type="checkbox" id="enrich"><label for="enrich" style="margin:0">Enrich papers with authors / abstract / links via Semantic Scholar</label></div>
+  </div>
+
+  <div class="bar">
+    <button id="save">Save settings</button>
+    <button class="ghost" id="dash">Open dashboard</button>
+    <span class="saved" id="saved">✓ Saved</span>
+  </div>
+</div>
+
+<script src="../core/schema.js"></script>
+<script src="../core/settings.js"></script>
+<script src="options.js"></script>
+</body>
+</html>
