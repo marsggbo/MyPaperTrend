@@ -41,7 +41,7 @@
     };
 
     function getFile() {
-      return fetch(base + '?ref=' + encodeURIComponent(branch), { headers: headers }).then(function (r) {
+      return fetch(base + '?ref=' + encodeURIComponent(branch), { headers: headers, cache: 'no-store' }).then(function (r) {
         if (r.status === 404) return null;
         if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub GET ' + r.status + ': ' + ghMsg(t)); });
         return r.json();
@@ -58,17 +58,20 @@
         });
       },
       save: function (doc) {
-        return getFile().then(function (f) {
-          var body = {
-            message: 'Update citations ' + (doc.updated || ''),
-            content: b64encodeUtf8(JSON.stringify(doc, null, 2)),
-            branch: branch
-          };
-          if (f && f.sha) body.sha = f.sha;
+        var content = b64encodeUtf8(JSON.stringify(doc, null, 2));
+        function put(sha, attempt) {
+          var body = { message: 'Update citations ' + (doc.updated || ''), content: content, branch: branch };
+          if (sha) body.sha = sha;
           return fetch(base, { method: 'PUT', headers: headers, body: JSON.stringify(body) }).then(function (r) {
-            if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub PUT ' + r.status + ': ' + ghMsg(t)); });
+            if (r.ok) return;
+            if ((r.status === 409 || r.status === 422) && attempt < 3) {
+              // stale sha → re-fetch the current sha and retry
+              return getFile().then(function (f) { return put(f && f.sha, attempt + 1); });
+            }
+            return r.text().then(function (t) { throw new Error('GitHub PUT ' + r.status + ': ' + ghMsg(t)); });
           });
-        });
+        }
+        return getFile().then(function (f) { return put(f && f.sha, 0); });
       },
       exportJSON: function () { return this.load().then(function (d) { return JSON.stringify(d || MPT.emptyDoc(), null, 2); }); },
       importJSON: function (text) { return this.save(MPT.migrate(JSON.parse(text))); }
