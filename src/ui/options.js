@@ -32,11 +32,76 @@ function refreshAccount() {
   });
 }
 
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function parseScholarId(s) {
+  s = (s || '').trim();
+  var m = /[?&]user=([^&]+)/.exec(s);
+  if (m) return m[1];
+  return /^[A-Za-z0-9_-]{8,}$/.test(s) ? s : '';
+}
+
+var trackedSort = { key: 'name', dir: 1 };
+
 function renderTracked() {
-  MPT.storage.local.listProfiles().then(function (ps) {
-    if (!ps.length) { $('trackedList').textContent = T('trackedNone'); return; }
-    $('trackedList').innerHTML = '<b>' + T('trackedList') + '</b> ' + ps.map(function (p) { return (p.name || p.id) + ' (' + p.papers + ')'; }).join(', ');
+  Promise.all([MPT.getSettings(), MPT.storage.local.listProfiles()]).then(function (r) {
+    var s = r[0], byId = {};
+    r[1].forEach(function (p) { byId[p.id] = p; });
+    var rows = s.trackedIds.map(function (id) {
+      var p = byId[id];
+      return { id: id, name: (p && p.name) || id, papers: (p && p.papers) || 0, updated: (p && p.updated) || '', captured: !!p };
+    });
+    var k = trackedSort.key, dir = trackedSort.dir;
+    rows.sort(function (a, b) {
+      if (k === 'papers') return (a.papers - b.papers) * dir;
+      return String(a[k]).localeCompare(String(b[k])) * dir;
+    });
+
+    var wrap = $('trackedWrap');
+    if (!rows.length) { wrap.innerHTML = '<div class="tt-empty">' + T('trackedNone') + '</div>'; return; }
+
+    function th(key, label, num) {
+      var cls = (key === trackedSort.key ? 'sorted' + (trackedSort.dir < 0 ? ' asc' : '') : '') + (num ? ' num' : '');
+      return '<th data-key="' + key + '" class="' + cls + '">' + label + '</th>';
+    }
+    var html = '<table class="tt"><thead><tr>' +
+      th('name', T('thScholar')) + th('papers', T('thPapers'), true) + th('updated', T('thUpdated')) + '<th></th></tr></thead><tbody>';
+    rows.forEach(function (row) {
+      html += '<tr>' +
+        '<td><a href="https://scholar.google.com/citations?user=' + encodeURIComponent(row.id) + '" target="_blank" rel="noopener">' + esc(row.name) + '</a></td>' +
+        '<td class="num">' + (row.captured ? row.papers : '<span style="color:var(--muted)">' + T('notCaptured') + '</span>') + '</td>' +
+        '<td>' + (row.updated || '—') + '</td>' +
+        '<td class="act">' + (row.captured ? '' : '<button class="cap" data-id="' + esc(row.id) + '">' + T('capture') + '</button> ') +
+          '<button class="rm" data-id="' + esc(row.id) + '" data-name="' + esc(row.name) + '" title="' + T('removeConfirm', { name: esc(row.name) }) + '">✕</button></td>' +
+      '</tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+
+    wrap.querySelectorAll('th[data-key]').forEach(function (el) {
+      el.onclick = function () {
+        var key = el.getAttribute('data-key');
+        if (trackedSort.key === key) trackedSort.dir *= -1; else { trackedSort.key = key; trackedSort.dir = 1; }
+        renderTracked();
+      };
+    });
+    wrap.querySelectorAll('.rm').forEach(function (b) {
+      b.onclick = function () { removeScholar(b.getAttribute('data-id'), b.getAttribute('data-name')); };
+    });
+    wrap.querySelectorAll('.cap').forEach(function (b) {
+      b.onclick = function () { captureNow(b.getAttribute('data-id'), b); };
+    });
   });
+}
+
+function removeScholar(id, name) {
+  if (!confirm(T('removeConfirm', { name: name }))) return;
+  MPT.setTracked(id, false)
+    .then(function () { return MPT.storage.local.removeFor(id); })
+    .then(renderTracked);
+}
+function captureNow(id, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  chrome.runtime.sendMessage({ type: 'CAPTURE_NOW', scholarId: id }, function () { renderTracked(); });
 }
 
 /* ── load ── */
@@ -119,5 +184,16 @@ $('save').onclick = function () {
     var el = $('saved'); el.classList.add('show'); setTimeout(function () { el.classList.remove('show'); }, 1500);
   });
 };
+
+$('btnAddScholar').onclick = function () {
+  var id = parseScholarId($('addScholar').value);
+  if (!id) { alert(T('addInvalid')); return; }
+  MPT.setTracked(id, true).then(function () {
+    $('addScholar').value = '';
+    renderTracked();
+    chrome.runtime.sendMessage({ type: 'CAPTURE_NOW', scholarId: id }, function () { renderTracked(); });
+  });
+};
+$('addScholar').onkeydown = function (e) { if (e.key === 'Enter') $('btnAddScholar').click(); };
 
 $('dash').onclick = function () { chrome.tabs.create({ url: chrome.runtime.getURL('src/ui/dashboard.html') }); };

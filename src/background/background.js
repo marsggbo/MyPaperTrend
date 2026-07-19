@@ -96,6 +96,10 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     pullCloud(msg.scholarId).then(function (merged) { sendResponse({ ok: true, doc: merged }); })
       .catch(function (e) { console.warn('[MyPaperTrend] cloud pull', e); sendResponse({ ok: false, error: String(e) }); });
     return true;
+  } else if (msg.type === 'CAPTURE_NOW' && msg.scholarId) {
+    openAndCapture(msg.scholarId).then(function () { sendResponse({ ok: true }); })
+      .catch(function (e) { console.warn('[MyPaperTrend] capture-now', e); sendResponse({ ok: false, error: String(e) }); });
+    return true;
   } else if (msg.type === 'ENRICH') {
     enrich(msg.scholarId).then(function (n) { sendResponse({ ok: true, enriched: n }); })
       .catch(function (e) { console.warn('[MyPaperTrend] enrich', e); sendResponse({ ok: false, error: String(e) }); });

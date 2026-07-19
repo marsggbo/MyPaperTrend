@@ -35,6 +35,23 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
 .login-btn .lg{display:inline-flex;width:18px;height:18px;flex-shrink:0}
 .login-btn .lg svg{width:18px;height:18px;display:block}
 .acct-status{font-size:.83rem;color:var(--muted);margin-top:.2rem}
+/* tracked table */
+.tt{width:100%;border-collapse:collapse;margin-top:.6rem;font-size:.85rem}
+.tt th,.tt td{text-align:left;padding:.5rem .5rem;border-bottom:1px solid var(--border)}
+.tt th{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap}
+.tt th.sorted::after{content:" ▾";opacity:.7}
+.tt th.sorted.asc::after{content:" ▴"}
+.tt td.num,.tt th.num{text-align:right}
+.tt td.act{text-align:right;white-space:nowrap}
+.tt a{font-weight:600}
+.tt .rm{color:#d93025;cursor:pointer;font-weight:700;border:0;background:none;padding:.2rem .45rem;border-radius:6px;font-size:.9rem}
+.tt .rm:hover{background:rgba(217,48,37,.12)}
+.tt .cap{color:var(--accent);cursor:pointer;background:none;border:0;font-size:.8rem;padding:.2rem .3rem;font-weight:600}
+.tt .cap[disabled]{opacity:.5;cursor:default}
+.tt-empty{font-size:.82rem;color:var(--muted);margin-top:.6rem}
+.add-row{display:flex;gap:.5rem;margin-top:.8rem}
+.add-row input{flex:1}
+.add-row button{padding:.5rem 1rem}
 </style>
 </head>
 <body>
@@ -93,7 +110,12 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
     <div class="check"><input type="checkbox" id="autoUpdate"><label for="autoUpdate" style="margin:0" data-i18n="autoDaily">Auto-update tracked scholars daily</label></div>
     <label for="autoTime" data-i18n="autoTimeLabel">Daily update time (local)</label>
     <input type="time" id="autoTime" style="max-width:140px">
-    <div id="trackedList" class="hint" style="margin-top:.8rem"></div>
+    <label data-i18n="trackedList" style="margin-top:1rem">Tracked scholars</label>
+    <div id="trackedWrap"></div>
+    <div class="add-row">
+      <input id="addScholar" type="text" data-i18n-ph="addPh" placeholder="Scholar profile URL or ID">
+      <button id="btnAddScholar" data-i18n="btnAdd">Add</button>
+    </div>
   </div>
 
   <div class="card">
