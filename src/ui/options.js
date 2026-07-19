@@ -8,7 +8,8 @@ function toggleBoxes() {
 }
 
 MPT.getSettings().then(function (s) {
-  $('primaryId').value = s.primaryScholarId || '';
+  $('autoUpdate').checked = !!s.autoUpdate;
+  $('autoTime').value = s.autoUpdateTime || '03:00';
   $('storage').value = s.storage;
   $('ghOwner').value = s.github.owner;
   $('ghRepo').value = s.github.repo;
@@ -22,16 +23,25 @@ MPT.getSettings().then(function (s) {
   toggleBoxes();
 });
 
+// show which scholars are currently tracked
+MPT.storage.local.listProfiles().then(function (ps) {
+  if (!ps.length) { $('trackedList').textContent = 'No scholars tracked yet — open a Scholar profile and flip the Track switch.'; return; }
+  $('trackedList').innerHTML = '<b>Tracked scholars:</b> ' + ps.map(function (p) {
+    return (p.name || p.id) + ' (' + p.papers + ')';
+  }).join(', ');
+});
+
 $('storage').onchange = toggleBoxes;
 $('fetch').onchange = toggleBoxes;
 
 $('save').onclick = function () {
   var s = {
-    primaryScholarId: $('primaryId').value.trim(),
+    autoUpdate: $('autoUpdate').checked,
+    autoUpdateTime: $('autoTime').value || '03:00',
     storage: $('storage').value,
     github: {
       owner: $('ghOwner').value.trim(), repo: $('ghRepo').value.trim(),
-      path: ($('ghPath').value.trim() || 'citations.json'),
+      path: ($('ghPath').value.trim() || 'citations-{id}.json'),
       branch: ($('ghBranch').value.trim() || 'main'),
       token: $('ghToken').value.trim()
     },
@@ -43,7 +53,8 @@ $('save').onclick = function () {
     enrich: $('enrich').checked,
     onboarded: true
   };
-  MPT.saveSettings(s).then(function () {
+  // patch (not overwrite) so trackedIds / activeProfileId are preserved
+  MPT.patchSettings(s).then(function () {
     var el = $('saved'); el.classList.add('show');
     setTimeout(function () { el.classList.remove('show'); }, 1500);
   });

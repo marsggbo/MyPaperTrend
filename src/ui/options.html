@@ -34,10 +34,12 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
   <h1>⚙ MyPaperTrend Settings</h1>
 
   <div class="card">
-    <h2>Profile</h2>
-    <div class="hint">Your <b>primary</b> Scholar profile is tracked automatically; other profiles you visit are only tracked if you opt in — so different people's data never mix. This is set automatically the first time you open your own profile, but you can change it here.</div>
-    <label for="primaryId">Primary Scholar ID (the <code>user=</code> value in your profile URL)</label>
-    <input type="text" id="primaryId" placeholder="LYNKm_8AAAAJ">
+    <h2>Tracking &amp; auto-update</h2>
+    <div class="hint">You track a scholar by flipping the <b>Track</b> switch on their profile page. Each tracked scholar is stored separately, so nobody's data mixes. Auto-update opens each tracked profile in a hidden background tab at the time below, records <b>all</b> their papers, and closes it — no scraping API needed (runs whenever the browser is open).</div>
+    <div class="check"><input type="checkbox" id="autoUpdate"><label for="autoUpdate" style="margin:0">Auto-update tracked scholars daily</label></div>
+    <label for="autoTime">Daily update time (local)</label>
+    <input type="time" id="autoTime" style="max-width:140px">
+    <div id="trackedList" class="hint" style="margin-top:.8rem"></div>
   </div>
 
   <div class="card">
@@ -55,7 +57,7 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
         <div><label for="ghRepo">Repo name</label><input type="text" id="ghRepo" placeholder="citation-tracker"></div>
       </div>
       <div class="row">
-        <div><label for="ghPath">File path</label><input type="text" id="ghPath" placeholder="citations.json"></div>
+        <div><label for="ghPath">File path (<code>{id}</code> = scholar id)</label><input type="text" id="ghPath" placeholder="citations-{id}.json"></div>
         <div><label for="ghBranch">Branch</label><input type="text" id="ghBranch" placeholder="main"></div>
       </div>
       <label for="ghToken">Fine-grained token (Contents: Read/Write on that repo)</label>
@@ -87,6 +89,7 @@ code{background:var(--field);padding:.1rem .3rem;border-radius:4px;font-size:.8r
 
 <script src="../core/schema.js"></script>
 <script src="../core/settings.js"></script>
+<script src="../core/storage/local.js"></script>
 <script src="options.js"></script>
 </body>
 </html>

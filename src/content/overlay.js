@@ -53,7 +53,15 @@
     '#mpt-root .mpt-credit{font-size:11px;color:#94a3b8;margin-top:10px;padding-top:9px;border-top:1px solid #eef1f6;text-align:center}',
     '#mpt-root .mpt-credit a{color:#6366f1;text-decoration:none;font-weight:600}',
     '#mpt-root .mpt-optin{font-size:12.5px;color:#475569;line-height:1.55;margin:6px 0 12px}',
+    '#mpt-root .mpt-toggle{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:11.5px;font-weight:700;color:#475569;user-select:none}',
+    '#mpt-root .mpt-sw{width:34px;height:19px;border-radius:999px;background:#cbd5e1;position:relative;transition:background .2s;flex-shrink:0}',
+    '#mpt-root .mpt-sw::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}',
+    '#mpt-root .mpt-toggle.on .mpt-sw{background:#10b981}',
+    '#mpt-root .mpt-toggle.on .mpt-sw::after{transform:translateX(15px)}',
+    '#mpt-root .mpt-hint{font-size:11.5px;color:#b45309;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:7px 10px;margin-top:10px;line-height:1.5}',
     '@media(prefers-color-scheme:dark){',
+    '#mpt-root .mpt-toggle{color:#94a3b8}#mpt-root .mpt-sw{background:#334155}',
+    '#mpt-root .mpt-hint{color:#fbbf24;background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3)}',
     '#mpt-root .mpt-credit{border-color:#1c2740}#mpt-root .mpt-optin{color:#94a3b8}',
     '#mpt-root{background:#111a2e;border-color:#243149;color:#f1f5f9;box-shadow:0 2px 12px rgba(0,0,0,.4)}',
     '#mpt-root .mpt-chip,#mpt-root .mpt-btn,#mpt-root .mpt-papers{background:#0d1526;border-color:#243149;color:#cbd5e1}',
@@ -185,22 +193,20 @@
   }
 
   MPT.overlay = {
-    /* Shown on a profile that isn't your primary and isn't tracked yet — nothing is
-       stored until the user explicitly opts in, so unrelated profiles never pile up. */
-    renderOptIn: function (info, handlers) {
+    /* Shown on a profile the user hasn't chosen to track — nothing is stored until the
+       Track switch is turned on, so unrelated profiles never pile up. */
+    renderToggleOff: function (info, handlers) {
       injectCSS();
       var root = mount();
       root.innerHTML =
-        '<div class="mpt-hd"><div class="mpt-title">📈 MyPaperTrend</div></div>' +
-        '<div class="mpt-optin">This isn\'t your tracked profile' + (info.name ? ' (<b>' + esc(info.name) + '</b>)' : '') +
-        '. To avoid mixing different people\'s data, MyPaperTrend only tracks profiles you choose.</div>' +
-        '<div class="mpt-actions">' +
-          '<button class="mpt-btn primary" id="mpt-track">➕ Track this profile</button>' +
-          '<button class="mpt-btn" id="mpt-primary">⭐ Set as my profile</button>' +
-          '<button class="mpt-btn" id="mpt-dash">📊 Dashboard</button>' +
-        '</div>' + CREDIT;
-      document.getElementById('mpt-track').onclick = function () { handlers.onTrack && handlers.onTrack(); };
-      document.getElementById('mpt-primary').onclick = function () { handlers.onSetPrimary && handlers.onSetPrimary(); };
+        '<div class="mpt-hd">' +
+          '<div class="mpt-title">📈 MyPaperTrend</div>' +
+          '<div class="mpt-toggle" id="mpt-toggle" title="Start tracking this scholar"><span>Track</span><span class="mpt-sw"></span></div>' +
+        '</div>' +
+        '<div class="mpt-optin">Turn on the switch to start tracking <b>' + esc(info.name || 'this scholar') + '</b>\'s citation trend. ' +
+        'Data is kept per-scholar and stored locally — nothing is recorded until you switch it on.</div>' +
+        '<div class="mpt-actions"><button class="mpt-btn" id="mpt-dash">📊 Dashboard</button></div>' + CREDIT;
+      document.getElementById('mpt-toggle').onclick = function () { handlers.onToggle && handlers.onToggle(); };
       document.getElementById('mpt-dash').onclick = function () { chrome.runtime.sendMessage({ type: 'OPEN', page: 'src/ui/dashboard.html' }); };
     },
 
@@ -225,7 +231,7 @@
         '<div class="mpt-hd">' +
           '<div><div class="mpt-title">📈 MyPaperTrend</div>' +
           '<div class="mpt-sub">Last captured: ' + esc(model.updated || '—') + ' · ' + model.papers.length + ' papers · ' + model.dates.length + ' days</div></div>' +
-          (newPapers ? '<div class="mpt-chip"><div class="n up">' + newPapers + '</div><div class="l">new papers</div></div>' : '') +
+          '<div class="mpt-toggle on" id="mpt-toggle" title="Stop tracking this scholar"><span>Tracking</span><span class="mpt-sw"></span></div>' +
         '</div>' +
         '<div class="mpt-chips">' +
           '<div class="mpt-chip"><div class="n">' + total.toLocaleString() + '</div><div class="l">total cites</div></div>' +
@@ -244,7 +250,8 @@
           '<button class="mpt-btn" id="mpt-export">⬇ Export JSON</button>' +
           '<button class="mpt-btn" id="mpt-settings">⚙ Settings</button>' +
         '</div>' +
-        '<div class="mpt-note">The total comes from Scholar\'s own metrics (always correct). Per-paper trends update for the papers shown on this page — click “Capture all pages” to include every paper (and newly added ones).</div>' +
+        ((opts && opts.hasMore) ? '<div class="mpt-hint">⚠️ This profile has more papers than shown on this page. Click <b>Capture all pages</b> to load and record every paper — or enable daily auto-update in Settings to do it automatically.</div>' : '') +
+        '<div class="mpt-note">The total comes from Scholar\'s own metrics (always correct even when paginated). Per-paper trends update for the papers shown; “Capture all pages” loads them all.</div>' +
         CREDIT;
 
       if (g.Chart && model.dates.length) {
@@ -258,6 +265,8 @@
         togglePaper(+head.parentNode.getAttribute('data-idx'));
       });
 
+      var tg = document.getElementById('mpt-toggle');
+      if (tg) tg.onclick = function () { if (lastOpts.onToggle) lastOpts.onToggle(); };
       document.getElementById('mpt-capture').onclick = function () { if (!busy && lastOpts.onCaptureAll) lastOpts.onCaptureAll(); };
       document.getElementById('mpt-dash').onclick = function () { chrome.runtime.sendMessage({ type: 'OPEN', page: 'src/ui/dashboard.html' }); };
       document.getElementById('mpt-settings').onclick = function () { chrome.runtime.sendMessage({ type: 'OPEN', page: 'src/ui/options.html' }); };

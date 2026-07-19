@@ -17,7 +17,7 @@
       if (!id) { return chrome.storage.local.remove(LEGACY); }
       var set = {}; set[key(id)] = d;
       return chrome.storage.local.set(set)
-        .then(function () { return MPT.patchSettings({ primaryScholarId: id }); })
+        .then(function () { return MPT.setTracked(id, true); })
         .then(function () { return chrome.storage.local.remove(LEGACY); });
     });
   }
@@ -56,8 +56,8 @@
     load: function () {
       return migrateLegacy().then(function () {
         return MPT.getSettings().then(function (s) {
-          if (s.primaryScholarId) return MPT.storage.local.loadFor(s.primaryScholarId);
-          // no primary yet: fall back to the first tracked profile, if any
+          if (s.activeProfileId) return MPT.storage.local.loadFor(s.activeProfileId);
+          // no active profile yet: fall back to the first tracked profile, if any
           return MPT.storage.local.listProfiles().then(function (ps) {
             return ps.length ? MPT.storage.local.loadFor(ps[0].id) : null;
           });

@@ -20,9 +20,11 @@ it makes *no extra network request*, so there is nothing for Google's anti-bot t
 - 🎯 **Pagination-proof total**: the overall number is read from Scholar's own metrics box
   (Citations / h-index / i10), so it's correct even when the paper list is paginated. Per-paper
   history updates for whatever papers are shown — click *Capture all pages* to include the rest.
-- 👤 **Multi-profile safe**: your own profile is tracked automatically; visiting someone else's
-  profile shows an opt-in prompt and stores nothing unless you choose to track it — different
-  people's data never mix (each profile is a separate document).
+- 👥 **Follow any scholar**: flip the **Track** switch on any profile to start recording it.
+  Each scholar is stored separately (nothing mixes); nothing is recorded until you switch it on.
+- ⏰ **Daily auto-update**: pick a time in Settings — the extension opens each tracked profile
+  in a hidden background tab, records **all** their papers, and closes it. No scraping API,
+  no keys; runs whenever your browser is open. (ScraperAPI/SerpApi remain optional extras.)
 - 🗂 **Full dashboard** (click *Full dashboard*): stat cards, all-time trend, recent
   milestones, per-paper trend charts, search & sort, **NEW** badges, profile switcher.
 - 💡 **Auto metadata**: authors, venue, a one-line **TL;DR**, abstract and

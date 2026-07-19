@@ -210,12 +210,12 @@
   Promise.all([MPT.storage.local.listProfiles(), MPT.getSettings()]).then(function (r) {
     var profiles = r[0], settings = r[1];
     var sel = document.getElementById('profileSel');
-    var current = settings.primaryScholarId || (profiles[0] && profiles[0].id) || '';
+    var current = settings.activeProfileId || (profiles[0] && profiles[0].id) || '';
 
     if (profiles.length > 1) {
       sel.style.display = '';
       sel.innerHTML = profiles.map(function (p) {
-        var label = (p.name || p.id) + (p.id === settings.primaryScholarId ? ' ⭐' : '') + ' · ' + p.papers + ' papers';
+        var label = (p.name || p.id) + ' · ' + p.papers + ' papers';
         return '<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + label + '</option>';
       }).join('');
       sel.addEventListener('change', function () { MPT.storage.local.loadFor(sel.value).then(showDoc); });

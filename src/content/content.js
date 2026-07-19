@@ -7,19 +7,20 @@
   var settings = null;
   var scholarId = MPT.dom.getScholarId();
   var scholarName = MPT.dom.getName();
+  var AUTO = location.hash.indexOf('mpt-auto') >= 0;   // opened by the daily scheduler
 
-  function isPrimary() { return settings && settings.primaryScholarId === scholarId; }
   function githubEnabled() {
-    return isPrimary() && settings.storage === 'github' && settings.github && settings.github.token;
+    return settings && settings.storage === 'github' && settings.github && settings.github.token;
   }
 
-  function render(doc, newTitles) {
+  function renderFull(doc, newTitles) {
     MPT.overlay.render(MPT.buildRenderModel(doc), {
-      newTitles: newTitles, onCaptureAll: onCaptureAll, isPrimary: isPrimary()
+      tracked: true, newTitles: newTitles, onCaptureAll: onCaptureAll,
+      hasMore: MPT.dom.hasMore(), onToggle: turnOff
     });
   }
 
-  function captureAndRender(fullSnapshot) {
+  function captureAndRender(fullSnapshot, silent) {
     return store.loadFor(scholarId).then(function (existing) {
       var doc = MPT.migrate(existing) || MPT.emptyDoc({ scholar_id: scholarId, name: scholarName });
       if (!doc.profile.scholar_id) doc.profile.scholar_id = scholarId;
@@ -27,10 +28,10 @@
       var newTitles = MPT.diffNewPapers(doc, snap);
       doc = MPT.mergeSnapshot(doc, snap);
       return store.saveFor(scholarId, doc).then(function () {
-        render(doc, newTitles);
+        if (!silent) renderFull(doc, newTitles);
         if (githubEnabled()) {
           chrome.runtime.sendMessage({ type: 'SYNC_GITHUB', doc: doc }, function (resp) {
-            if (resp && resp.ok && resp.doc) render(resp.doc, newTitles);
+            if (!silent && resp && resp.ok && resp.doc) renderFull(resp.doc, newTitles);
           });
         }
         if (settings && settings.enrich && fullSnapshot) {
@@ -47,48 +48,44 @@
       .then(function () { MPT.overlay.setBusy(false); });
   }
 
-  function startTracking() {
-    return captureAndRender(false);
+  function turnOn() {
+    MPT.setTracked(scholarId, true).then(function () {
+      settings.trackedIds.push(scholarId);
+      captureAndRender(false);
+    });
   }
-
-  function boot() {
-    return store.loadFor(scholarId).then(function (existing) {
-      var known = !!existing;
-      // First profile ever seen becomes the primary (the user's own).
-      if (!settings.primaryScholarId) {
-        return MPT.patchSettings({ primaryScholarId: scholarId }).then(function () {
-          settings.primaryScholarId = scholarId;
-          return afterRole(known);
-        });
-      }
-      return afterRole(known);
+  function turnOff() {
+    MPT.setTracked(scholarId, false).then(function () {
+      settings.trackedIds = settings.trackedIds.filter(function (x) { return x !== scholarId; });
+      MPT.overlay.renderToggleOff({ scholarId: scholarId, name: scholarName }, { onToggle: turnOn });
     });
   }
 
-  function afterRole(known) {
-    if (isPrimary() || known) {
-      // primary profile, or a profile we already track → update it
+  /* ── scheduled background-tab update: read ALL papers, then let the SW close the tab ── */
+  function runAuto() {
+    var done = function () { chrome.runtime.sendMessage({ type: 'AUTO_DONE' }); };
+    if (settings.trackedIds.indexOf(scholarId) < 0) { done(); return; }
+    MPT.dom.loadAll().then(function () { return captureAndRender(true, true); })
+      .catch(function (e) { console.warn('[MyPaperTrend] auto', e); })
+      .then(done);
+  }
+
+  function runInteractive() {
+    if (settings.trackedIds.indexOf(scholarId) >= 0) {
+      MPT.setTracked(scholarId, true); // refresh activeProfileId
       if (githubEnabled()) {
-        return new Promise(function (res) {
-          chrome.runtime.sendMessage({ type: 'PULL_GITHUB' }, function () { startTracking().then(res); });
-        });
+        chrome.runtime.sendMessage({ type: 'PULL_GITHUB', scholarId: scholarId }, function () { captureAndRender(false); });
+      } else {
+        captureAndRender(false);
       }
-      return startTracking();
+    } else {
+      // not tracked → show only the Track toggle; store nothing until turned on
+      MPT.overlay.renderToggleOff({ scholarId: scholarId, name: scholarName }, { onToggle: turnOn });
     }
-    // a different, untracked profile → don't store anything until the user opts in
-    MPT.overlay.renderOptIn({ scholarId: scholarId, name: scholarName }, {
-      onTrack: function () { startTracking(); },
-      onSetPrimary: function () {
-        MPT.patchSettings({ primaryScholarId: scholarId }).then(function () {
-          settings.primaryScholarId = scholarId; startTracking();
-        });
-      }
-    });
-    return Promise.resolve();
   }
 
   MPT.storage.local.ensureMigrated()
     .then(function () { return MPT.getSettings(); })
-    .then(function (s) { settings = s; return boot(); })
+    .then(function (s) { settings = s; AUTO ? runAuto() : runInteractive(); })
     .catch(function (e) { console.warn('[MyPaperTrend]', e); });
 })(typeof globalThis !== 'undefined' ? globalThis : self);

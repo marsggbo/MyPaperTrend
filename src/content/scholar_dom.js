@@ -42,6 +42,11 @@
       return out;
     },
     _rowCount: function () { return document.querySelectorAll('#gsc_a_b .gsc_a_tr').length; },
+    /* true when Scholar still has more papers to load (the "Show more" button is active) */
+    hasMore: function () {
+      var b = document.getElementById('gsc_bpf_more');
+      return !!b && !b.disabled;
+    },
     _waitForMore: function (prevCount, timeout) {
       timeout = timeout || 8000;
       return new Promise(function (res) {
