@@ -20,10 +20,15 @@ function refreshAccount() {
     ['btnLocal', 'btnGitHub', 'btnGoogle'].forEach(function (id) {
       $(id).classList.toggle('active', $(id).getAttribute('data-storage') === s.storage);
     });
-    var st = T('notSignedIn');
-    if (s.storage === 'github' && s.github.owner) st = T('syncedGh', { repo: s.github.owner + '/' + s.github.repo });
-    else if (s.storage === 'gdrive') st = T('syncedGg');
+    var st = T('notSignedIn'), where = '';
+    if (s.storage === 'github' && s.github.owner) {
+      st = T('syncedGh', { repo: s.github.owner + '/' + s.github.repo });
+      where = T('whereGh', { repo: s.github.owner + '/' + s.github.repo });
+    } else if (s.storage === 'gdrive') {
+      st = T('syncedGg'); where = T('whereGg');
+    }
     $('acctStatus').textContent = st;
+    $('acctWhere').textContent = where;
   });
 }
 
