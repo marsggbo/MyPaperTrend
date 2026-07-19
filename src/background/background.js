@@ -181,7 +181,7 @@ function syncAll() {
               if (merged && !merged.profile.scholar_id) merged.profile.scholar_id = id;
               return prov.save(merged).then(function () { return MPT.storage.local.saveFor(id, merged); }).then(function () { written++; });
             });
-          }).catch(function (e) { console.warn('[MyPaperTrend] syncAll', id, e); errors.push(String(e && e.message || e)); });
+          }).catch(function (e) { console.warn('[MyPaperTrend] syncAll', id, e); errors.push(id + ': ' + String(e && e.message || e)); });
         });
       });
       return chain.then(function () {

@@ -53,7 +53,8 @@
       load: function () {
         return getFile().then(function (f) {
           if (!f || !f.content) return null;
-          return MPT.migrate(JSON.parse(b64decodeUtf8(f.content)));
+          try { return MPT.migrate(JSON.parse(b64decodeUtf8(f.content))); }
+          catch (e) { console.warn('[MyPaperTrend] github: unparseable remote, treating as empty'); return null; }
         });
       },
       save: function (doc) {

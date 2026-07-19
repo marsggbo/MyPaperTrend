@@ -69,8 +69,11 @@
         return ensureFolder(H).then(find).then(function (f) {
           if (!f) return null;
           return fetch(DRIVE + '/files/' + f.id + '?alt=media', { headers: H })
-            .then(function (r) { if (!r.ok) throw new Error('Drive get ' + r.status); return r.json(); })
-            .then(function (d) { return MPT.migrate(d); });
+            .then(function (r) { if (!r.ok) return okJson(r, 'Drive get'); return r.text(); })
+            .then(function (t) {
+              try { return MPT.migrate(JSON.parse(t)); }
+              catch (e) { console.warn('[MyPaperTrend] gdrive: unparseable remote, treating as empty'); return null; }
+            });
         });
       },
       save: function (doc) {
