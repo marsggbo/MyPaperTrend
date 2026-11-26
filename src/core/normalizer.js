@@ -17,15 +17,21 @@
     (result.papers || []).forEach(function (p) {
       var title = (p.title || '').trim();
       if (!title) return;
-      var entry = doc.papers[title];
-      if (!entry) {
-        entry = doc.papers[title] = { year: p.year || '', pub_id: p.pub_id || '', first_seen: today, history: {}, meta: {} };
-      }
-      if (!entry.first_seen) entry.first_seen = today;
-      if (!entry.year && p.year) entry.year = p.year;
-      if (!entry.pub_id && p.pub_id) entry.pub_id = p.pub_id;
       var c = Number.isFinite(p.citations) ? Math.max(0, Math.floor(p.citations)) : 0;
-      entry.history[today] = c;
+      var incHist = {}; incHist[today] = c;
+      var inc = { year: p.year || '', pub_id: p.pub_id || '', first_seen: today, history: incHist, meta: {} };
+      var matchKey = MPT.findPaperKey(doc.papers, title, p.pub_id);
+      if (matchKey) {
+        var m = MPT.mergePaperEntries(matchKey, doc.papers[matchKey], title, inc, true);
+        if (m.title !== matchKey && !doc.papers[m.title]) {
+          delete doc.papers[matchKey];
+          doc.papers[m.title] = m.entry;
+        } else {
+          doc.papers[matchKey] = m.entry;
+        }
+      } else {
+        doc.papers[MPT.safePaperKey(doc.papers, title, inc)] = inc;
+      }
     });
     doc.updated = today;
     return doc;
@@ -33,11 +39,19 @@
 
   /* Titles present in the snapshot that the doc has never seen. */
   MPT.diffNewPapers = function (doc, result) {
-    var existing = {};
-    Object.keys((doc && doc.papers) || {}).forEach(function (t) { existing[t] = 1; });
-    return (result.papers || [])
-      .map(function (p) { return (p.title || '').trim(); })
-      .filter(function (t) { return t && !existing[t]; });
+    doc = MPT.migrate(doc) || MPT.emptyDoc();
+    var seenInSnap = {};
+    var out = [];
+    (result.papers || []).forEach(function (p) {
+      var t = (p.title || '').trim();
+      if (!t) return;
+      if (MPT.findPaperKey(doc.papers, t, p.pub_id)) return;
+      var dedupKey = p.pub_id || MPT.normTitle(t) || t;
+      if (seenInSnap[dedupKey]) return;
+      seenInSnap[dedupKey] = 1;
+      out.push(t);
+    });
+    return out;
   };
 
   /* Union two docs (histories, first_seen=min, richer meta wins). Non-destructive:
@@ -52,28 +66,25 @@
     out.profile.metrics = Object.assign({}, (b.profile && b.profile.metrics) || {}, (a.profile && a.profile.metrics) || {});
     out.updated = (a.updated || '') > (b.updated || '') ? a.updated : b.updated;
     out.source = a.updated >= b.updated ? (a.source || b.source) : (b.source || a.source);
-    var titles = {};
-    Object.keys(a.papers || {}).forEach(function (t) { titles[t] = 1; });
-    Object.keys(b.papers || {}).forEach(function (t) { titles[t] = 1; });
-    Object.keys(titles).forEach(function (t) {
-      var pa = (a.papers || {})[t], pb = (b.papers || {})[t];
-      if (!pa) { out.papers[t] = pb; return; }
-      if (!pb) { out.papers[t] = pa; return; }
-      var history = Object.assign({}, pa.history || {}, pb.history || {});
-      var fa = pa.first_seen || '', fb = pb.first_seen || '';
-      var first_seen = fa && fb ? (fa < fb ? fa : fb) : (fa || fb);
-      var metaA = pa.meta || {}, metaB = pb.meta || {};
-      var richA = metaA.tldr || metaA.abstract, richB = metaB.tldr || metaB.abstract;
-      var meta = richB && !richA ? metaB : richA ? metaA : Object.assign({}, metaB, metaA);
-      out.papers[t] = {
-        year: pa.year || pb.year || '',
-        pub_id: pa.pub_id || pb.pub_id || '',
-        first_seen: first_seen,
-        history: history,
-        meta: meta
-      };
+    Object.keys(a.papers || {}).forEach(function (ta) {
+      out.papers[ta] = a.papers[ta];
     });
-    return out;
+    Object.keys(b.papers || {}).forEach(function (tb) {
+      var pb = b.papers[tb];
+      var matchKey = MPT.findPaperKey(out.papers, tb, pb && pb.pub_id);
+      if (matchKey) {
+        var m = MPT.mergePaperEntries(matchKey, out.papers[matchKey], tb, pb, true);
+        if (m.title !== matchKey && !out.papers[m.title]) {
+          delete out.papers[matchKey];
+          out.papers[m.title] = m.entry;
+        } else {
+          out.papers[matchKey] = m.entry;
+        }
+      } else {
+        out.papers[MPT.safePaperKey(out.papers, tb, pb)] = pb;
+      }
+    });
+    return MPT.dedupeDoc(out);
   };
 
   /* Build the RenderModel that all views consume (see docs/SCHEMA.md §4). */

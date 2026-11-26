@@ -69,14 +69,16 @@
       injectCSS();
 
       var byPub = {}, byTitle = {};
+      var norm = MPT.normTitle || function (s) { return String(s || '').toLowerCase(); };
       model.papers.forEach(function (p) {
         if (p.pubId) byPub[p.pubId] = p;
-        byTitle[p.title.toLowerCase()] = p;
+        var nt = norm(p.title);
+        if (!byTitle[nt] || p.latest > byTitle[nt].latest) byTitle[nt] = p;
       });
 
       document.querySelectorAll('#gsc_a_b .gsc_a_tr').forEach(function (row) {
         var info = pubOf(row); if (!info) return;
-        var p = (info.pub && byPub[info.pub]) || byTitle[info.title.toLowerCase()];
+        var p = (info.pub && byPub[info.pub]) || byTitle[norm(info.title)];
         if (!p || !p.series.length) return;
         var idx = model.papers.indexOf(p);
         var ico = document.createElement('span');
